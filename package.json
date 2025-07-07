@@ -9,10 +9,13 @@
   "scripts": {
     "build": "tsc",
     "start": "ts-node src/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "devDependencies": {
+    "@types/jest": "30.0.0",
+    "jest": "30.0.4",
     "prettier": "^3.6.2",
+    "ts-jest": "^29.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
   },
