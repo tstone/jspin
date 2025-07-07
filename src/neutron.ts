@@ -1,0 +1,107 @@
+import { SerialPort } from "serialport";
+import { DataListener, MainBoard, NeutronExpansion, PortType } from "./hardware";
+import { ID } from "./commands/id";
+import { ConfigureHardware } from "./commands/configure-hardware";
+import { FastCommand } from "./commands/fast-command";
+
+export class Neutron implements MainBoard {
+  private readonly ioPort: SerialPort;
+  private readonly expPort?: SerialPort;
+
+  constructor(options: NeutronOptions) {
+    this.ioPort = new SerialPort({
+      path: options.ioPort,
+      baudRate: 921_600,
+      stopBits: 1,
+      parity: 'none',
+      autoOpen: false,
+    });
+
+    if (options.expPort) {
+      this.expPort = new SerialPort({
+        path: options.expPort,
+        baudRate: 921_600,
+        stopBits: 1,
+        parity: 'none',
+        autoOpen: false,
+      });
+    }
+  }
+
+  async initialize(dataListener: DataListener): Promise<void> {
+    // Reference: https://fastpinball.com/fast-serial-protocol/net/initial_connection/
+
+    await this.openPort(this.ioPort);
+    console.log('IO Port opened:', this.ioPort.path);
+
+    // Wait for board to boot up
+    this.send(new ID(), 'io');
+    const resp = await this.waitForResponse(this.ioPort);
+    console.log('Board ID:', resp.toString().trim());
+
+    // Tell board it's a Neutron
+    this.send(new ConfigureHardware('2000', { switchReporting: 'verbose' }), 'io');
+    const resp2 = await this.waitForResponse(this.ioPort);
+    console.log('Configuration response:', resp2.toString().trim());
+
+    // TODO: configure drivers
+    // TODO: configure switches
+    // Configure LEDs?
+    // TODO: watchdog
+
+    // Setup is done, bind to machine
+    this.ioPort.on('data', (data) => {
+      dataListener('io', data.toString());
+    });
+
+    if (this.expPort) {
+      await this.openPort(this.expPort);
+      console.log('EXP Port opened:', this.expPort.path);
+      this.send(new ID(NeutronExpansion), 'exp');
+      const resp3 = await this.waitForResponse(this.expPort);
+      console.log('EXP configuration response:', resp3.toString().trim());
+
+      this.expPort.on('data', (data) => {
+        dataListener('exp', data.toString());
+      });
+    }
+  }
+
+  send(command: FastCommand, port?: PortType): boolean {
+    port ||= 'io';
+    const str = command.toString() + '\r';
+    console.log(`Sending command to ${port} port:`, str.trim());
+
+    if (port === 'io') {
+      return this.ioPort.write(str);
+    } else if (port === 'exp' && this.expPort) {
+      return this.expPort.write(str);
+    }
+    return false;
+  }
+
+  private openPort(port: SerialPort): Promise<void> {
+    return new Promise((resolve, reject) => {
+      port.open((err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve();
+        }
+      });
+    });
+  }
+
+  private waitForResponse(port: SerialPort): Promise<string> {
+    return new Promise((resolve) => {
+      port.once('data', (data) => {
+        resolve(data.toString().trim());
+      });
+    });
+  }
+}
+
+export type NeutronOptions = {
+  ioPort: string;
+  expPort?: string;
+};
