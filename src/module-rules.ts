@@ -1,11 +1,11 @@
-import { State, StateType } from "./state";
+import { StateMachine, StateType } from "./state-machine";
 
 export abstract class ModuleActiveRule {
-  abstract isTrue(state: State<any>, to: StateType, from?: StateType): boolean;
+  abstract isTrue(state: StateMachine<any>, to: StateType, from?: StateType): boolean;
 
   and(...rules: ModuleActiveRule[]): ModuleActiveRule {
     return new class extends ModuleActiveRule {
-      isTrue(state: State<any>, to: StateType, from?: StateType): boolean {
+      isTrue(state: StateMachine<any>, to: StateType, from?: StateType): boolean {
         return rules.every(rule => rule.isTrue(state, to, from));
       }
     }
@@ -13,7 +13,7 @@ export abstract class ModuleActiveRule {
 
   or(...rules: ModuleActiveRule[]): ModuleActiveRule {
     return new class extends ModuleActiveRule {
-      isTrue(state: State<any>, to: StateType, from?: StateType): boolean {
+      isTrue(state: StateMachine<any>, to: StateType, from?: StateType): boolean {
         return rules.some(rule => rule.isTrue(state, to, from));
       }
     }
@@ -28,25 +28,25 @@ export function always(): ModuleActiveRule {
   };
 }
 
-export function when<T extends StateType>(state: State<T>, value: T) {
+export function when<T extends StateType>(state: StateMachine, value: T) {
   return new class extends ModuleActiveRule {
-    isTrue(state: State<any>, to: StateType): boolean {
+    isTrue(state: StateMachine<any>, to: StateType): boolean {
       return state === state && to === value;
     }
   };
 }
 
-export function whenAny<T extends StateType>(state: State<T>, values: T[]) {
+export function whenAny<T extends StateType>(state: StateMachine, values: T[]) {
   return new class extends ModuleActiveRule {
-    isTrue(state: State<any>, to: StateType): boolean {
+    isTrue(state: StateMachine<any>, to: StateType): boolean {
       return state === state && values.includes(to as any);
     }
   };
 }
 
-export function transition(state: State<any>, from: StateType, to: StateType): ModuleActiveRule {
+export function transition(state: StateMachine<any>, from: StateType, to: StateType): ModuleActiveRule {
   return new class extends ModuleActiveRule {
-    isTrue(currentState: State<any>, toState: StateType, fromState?: StateType): boolean {
+    isTrue(currentState: StateMachine<any>, toState: StateType, fromState?: StateType): boolean {
       return currentState === state && fromState === from && toState === to;
     }
   };
@@ -54,7 +54,7 @@ export function transition(state: State<any>, from: StateType, to: StateType): M
 
 export function not(rule: ModuleActiveRule): ModuleActiveRule {
   return new class extends ModuleActiveRule {
-    isTrue(state: State<any>, to: StateType, from?: StateType): boolean {
+    isTrue(state: StateMachine<any>, to: StateType, from?: StateType): boolean {
       return !rule.isTrue(state, to, from);
     }
   };

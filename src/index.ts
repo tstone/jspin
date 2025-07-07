@@ -1,11 +1,12 @@
 import { Machine } from "./machine";
 import { Neutron } from "./neutron";
-import { MachineState, State } from "./state";
+import { MachineState, StateMachine } from "./state-machine";
 import { Module, StateChangePayload } from "./module";
 import { transition as transitioned, when } from "./module-rules";
 import Color from "color";
 import { NeutronExpansion } from "./hardware/expansion-board";
 import { LED } from "./hardware/led";
+import { CabinetIO, IO_0804, IO_1616, IO_3208, IoNetwork } from "./hardware/io-network";
 
 // hardware, states, modules
 // hardware defines what exists
@@ -42,12 +43,20 @@ class TurnOnLEDTest implements Module {
   }
 }
 
+const ioNet = new IoNetwork(CabinetIO, IO_1616, IO_3208, IO_0804);
+
+// read switch by board, port, and pin
+// const StartButton = ioNet.getSwitch(0, 0);
+// read switch by board and port
+// const [StartButton, LeftFlipperButton, TiltBobSwitch] = ioNet.getSwitches(0);
+
 (async () => {
   const machine = new Machine({
     mainboard: new Neutron({
       ioPort: '/dev/ttyACM0',
       expPort: '/dev/ttyACM1',
     }),
+    ioNet,
     modules: [
       new AutoStart(),
       new TurnOnLEDTest()

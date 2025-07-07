@@ -2,7 +2,7 @@ import EventEmitter from 'node:events';
 
 export type StateType = string | number;
 
-export class State<T extends StateType> extends EventEmitter<{ change: [T, State<T>, T] }> {
+export class StateMachine<T extends StateType = any> extends EventEmitter<{ change: [T, T, StateMachine<T>] }> {
   private current: T;
 
   constructor(initial: T) {
@@ -21,14 +21,14 @@ export class State<T extends StateType> extends EventEmitter<{ change: [T, State
 
     const old = this.current;
     this.current = newValue;
-    this.emit('change', newValue, this, old);
+    this.emit('change', newValue, old, this);
   }
 }
 
 /**
- * boot => ready => game => ready => ...
+ * boot => ready <=> game
  *
  * `ready` is the state when the machine is not booting or in game mode.
  * `game` is the state when the machine is actively playing a game.
  */
-export const MachineState = new State<'boot' | 'ready' | 'game'>('boot');
+export const MachineState = new StateMachine<'boot' | 'ready' | 'game'>('boot');

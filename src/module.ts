@@ -2,15 +2,24 @@ import { ColorInstance } from "color";
 import { LED } from "./hardware/led";
 import { Mainboard } from "./hardware/mainboard";
 import { ModuleActiveRule } from "./module-rules";
-import { State } from "./state";
+import { StateMachine } from "./state-machine";
 import { SetLEDColor } from "./commands/set-led-color";
+import { Repository } from "./repository";
+import { Switch } from "./hardware/switch";
+import { SwitchChange } from "./data-parser";
+
+export type ModuleChild = StateMachine<any> | Module | Repository<any>;
 
 export interface Module {
   active: ModuleActiveRule;
-  onActivated?<S extends State<any> = State<any>>(payload: StateChangePayload<S>): void;
-  onDeactivated?<S extends State<any> = State<any>>(payload: StateChangePayload<S>): void;
-  // onSwitch
-  // onConfigChanged
+  children?: ModuleChild[];
+
+  onActivated?<S extends StateMachine<any> = StateMachine<any>>(payload: StateChangePayload<S>): void;
+  onDeactivated?<S extends StateMachine<any> = StateMachine<any>>(payload: StateChangePayload<S>): void;
+  onStateChange?<S extends StateMachine<any> = StateMachine<any>>(payload: StateChangePayload<S>): void;
+  onRepositoryChange?<T extends Record<string, any> = Record<string, any>>(payload: RepoDataChangePayload<T>): void;
+  onSwitch?(payload: SwitchChangePayload): void;
+  onEvent?(payload: CustomEventPayload): void;
 }
 
 // EXP
@@ -32,12 +41,11 @@ export interface Module {
 // switches
 // coils
 
-export class StateChangePayload<S extends State<any> = State<any>> {
+class ModuleEventPayload<S extends StateMachine<any> = StateMachine<any>> {
   private _leds?: LEDsHandler;
 
   constructor(
-    public readonly triggeringState: S,
-    private mainboard: Mainboard,
+    public readonly mainboard: Mainboard,
   ) { }
 
   get leds(): LEDsHandler {
@@ -45,6 +53,46 @@ export class StateChangePayload<S extends State<any> = State<any>> {
       this._leds = new LEDsHandler(this.mainboard);
     }
     return this._leds;
+  }
+}
+
+export class StateChangePayload<S extends StateMachine<any> = StateMachine<any>> extends ModuleEventPayload<S> {
+  constructor(
+    public readonly triggeringState: S,
+    mainboard: Mainboard,
+  ) {
+    super(mainboard);
+  }
+}
+
+export class RepoDataChangePayload<T extends Record<string, any> = Record<string, any>> extends ModuleEventPayload {
+  constructor(
+    public readonly payload: T[keyof T],
+    public readonly path: string,
+    public readonly newValue: any,
+    public readonly oldValue: any,
+    mainboard: Mainboard,
+  ) {
+    super(mainboard);
+  }
+}
+
+export class SwitchChangePayload extends ModuleEventPayload {
+  constructor(
+    public readonly target: Switch,
+    public readonly state: SwitchChange['state'],
+    mainboard: Mainboard,
+  ) {
+    super(mainboard);
+  }
+}
+
+export class CustomEventPayload extends ModuleEventPayload {
+  constructor(
+    public readonly event: string,
+    mainboard: Mainboard,
+  ) {
+    super(mainboard);
   }
 }
 

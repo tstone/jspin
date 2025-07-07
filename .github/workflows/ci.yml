@@ -28,6 +28,3 @@ jobs:
 
       - name: Run tests
         run: npm test
-
-      - name: Check build output
-        run: ls -la build/

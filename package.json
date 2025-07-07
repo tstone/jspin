@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@types/jest": "30.0.0",
+    "@types/lodash": "^4.17.20",
     "jest": "30.0.4",
     "prettier": "^3.6.2",
     "ts-jest": "^29.1.0",
@@ -21,6 +22,8 @@
   },
   "dependencies": {
     "color": "^5.0.0",
+    "lodash": "^4.17.21",
+    "on-change": "^5.0.1",
     "serialport": "^13.0.0"
   }
 }
