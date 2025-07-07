@@ -7,6 +7,7 @@ import Color from "color";
 import { NeutronExpansion } from "./hardware/expansion-board";
 import { LED } from "./hardware/led";
 import { CabinetIO, IO_0804, IO_1616, IO_3208, IoNetwork } from "./hardware/io-network";
+import { AutoStart } from "./modules/auto-start";
 
 // hardware, states, modules
 // hardware defines what exists
@@ -19,12 +20,6 @@ const TestLED = new LED(NeutronExpansion, 0, 1);
 
 const [L1, L2] = LED.port(NeutronExpansion, 0, 2);
 
-class AutoStart implements Module {
-  readonly active = transitioned(MachineState, 'boot', 'ready');
-  async onActivated() {
-    MachineState.state = 'game'; // Automatically start the game (for testing)
-  }
-}
 
 class TurnOnLEDTest implements Module {
   readonly active = when(MachineState, 'game');

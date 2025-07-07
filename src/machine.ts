@@ -1,7 +1,7 @@
 import { FastDataParser, SwitchChange } from "./data-parser";
 import { IoNetwork } from "./hardware/io-network";
 import { Mainboard, PortType } from "./hardware/mainboard";
-import { Module, StateChangePayload, RepoDataChangePayload, SwitchChangePayload } from "./module";
+import { Module, StateChangePayload, RepoDataChangePayload, SwitchChangePayload, CustomEventPayload } from "./module";
 import { Repository } from "./repository";
 import { MachineState, StateMachine, StateType } from "./state-machine";
 
@@ -42,6 +42,14 @@ export class Machine {
       repo.on('change', (payload, path, newValue, oldValue) => {
         this.onRepoDataChange(payload, path, newValue, oldValue);
       });
+    }
+    // automatically bind custom events
+    if (isEventEmitter(module)) {
+      for (const eventName of module.eventNames()) {
+        module.on(eventName, (payload) => {
+          this.onCustomEvent(eventName.toString(), payload);
+        });
+      }
     }
   }
 
@@ -106,10 +114,26 @@ export class Machine {
       }
     }
   }
+
+  private async onCustomEvent(eventName: string, payload: any) {
+    console.log(`Custom event triggered: ${eventName}`, payload);
+    const event = new CustomEventPayload(eventName, this.mainboard);
+    for (const module of this.activeModules) {
+      try {
+        await module.onEvent?.(event);
+      } catch (error) {
+        console.error(`Error in module ${module.constructor.name} on custom event:`, error);
+      }
+    }
+  }
 }
 
 export type MachineConfig = {
   mainboard: Mainboard;
   modules?: Module[];
   ioNet?: IoNetwork;
+}
+
+function isEventEmitter(obj: object): obj is NodeJS.EventEmitter {
+  return typeof (obj as NodeJS.EventEmitter).on === 'function' && typeof (obj as NodeJS.EventEmitter).emit === 'function';
 }

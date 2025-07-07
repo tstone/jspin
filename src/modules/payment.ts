@@ -4,17 +4,20 @@ import { Repository } from "../repository";
 import { StateMachine } from "../state-machine";
 import EventEmitter from 'node:events';
 
-export const GameStartableState = new StateMachine<'startable' | 'unstartable'>('startable');
+export const GameStartable = new StateMachine<'startable' | 'unstartable'>('startable');
 export const PaymentRepo = new Repository({
   credits: 0
 });
 
-// Captures coins as payment
+/** 
+ * This module handles capturing coins as payment, and firing  a`player_added` event
+ * when the start button is pressed and enough credits are available.
+ */
 export class Payment implements Module {
   readonly active = always();
   readonly children = [
     PaymentRepo,
-    GameStartableState,
+    GameStartable,
     new StartGame(this.gameCost)
   ];
 
@@ -29,7 +32,7 @@ export class Payment implements Module {
 
 // Captures the start button to start the game
 export class StartGame extends EventEmitter<{ player_added: [] }> implements Module {
-  readonly active = when(GameStartableState, 'startable');
+  readonly active = when(GameStartable, 'startable');
 
   constructor(public readonly gameCost = 4) {
     super();
