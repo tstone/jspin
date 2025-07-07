@@ -3,9 +3,9 @@ import { Neutron } from "./neutron";
 import { MachineState, State } from "./state";
 import { Module, StateChangePayload } from "./module";
 import { transition as transitioned, when } from "./module-rules";
-import { LED, NeutronExpansion } from "./hardware";
-import { SetLEDColor } from "./commands/set-led-color";
 import Color from "color";
+import { NeutronExpansion } from "./hardware/expansion-board";
+import { LED } from "./hardware/led";
 
 // hardware, states, modules
 // hardware defines what exists
@@ -15,6 +15,8 @@ import Color from "color";
 // modules can interact with hardware
 
 const TestLED = new LED(NeutronExpansion, 0, 1);
+
+const [L1, L2] = LED.port(NeutronExpansion, 0, 2);
 
 class AutoStart implements Module {
   readonly active = transitioned(MachineState, 'boot', 'ready');
@@ -26,13 +28,9 @@ class AutoStart implements Module {
 class TurnOnLEDTest implements Module {
   readonly active = when(MachineState, 'game');
 
-  async onActivated({ mainboard }: StateChangePayload) {
+  async onActivated({ leds }: StateChangePayload) {
     console.log('LED Test Module Activated');
-    // lowest level: (maybe don't even expose this?)
-    await mainboard.send(new SetLEDColor(TestLED, Color.rgb(100, 40, 255)), 'exp');
-
-    // higher level:
-    // await leds.set(TestLED, Color.rgb(100, 40, 255));
+    await leds.setSingle(TestLED, Color.rgb(100, 40, 255));
 
     // per LED animations
     // await leds.clearQueue(TestLED);

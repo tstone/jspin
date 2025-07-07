@@ -1,10 +1,11 @@
 import { SerialPort } from "serialport";
-import { DataListener, MainBoard, NeutronExpansion, PortType } from "./hardware";
 import { ID } from "./commands/id";
 import { ConfigureHardware } from "./commands/configure-hardware";
 import { FastCommand } from "./commands/fast-command";
+import { DataListener, Mainboard, PortType } from "./hardware/mainboard";
+import { NeutronExpansion } from "./hardware/expansion-board";
 
-export class Neutron implements MainBoard {
+export class Neutron implements Mainboard {
   private readonly ioPort: SerialPort;
   private readonly expPort?: SerialPort;
 
@@ -44,6 +45,7 @@ export class Neutron implements MainBoard {
     const resp2 = await this.waitForResponse(this.ioPort);
     console.log('Configuration response:', resp2.toString().trim());
 
+    // TODO: CP: https://fastpinball.com/fast-serial-protocol/exp/cp/
     // TODO: configure drivers
     // TODO: configure switches
     // Configure LEDs?

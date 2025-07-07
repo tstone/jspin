@@ -1,4 +1,4 @@
-import { ExpansionBoardType } from "../hardware";
+import { ExpansionBoardType } from "../hardware/expansion-board";
 import { DynFastCommand } from "./fast-command";
 
 export class ID implements DynFastCommand {

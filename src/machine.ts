@@ -1,12 +1,10 @@
-import { FastCommand } from "./commands/fast-command";
-import { MainBoard, PortType } from "./hardware";
-import { Module } from "./module";
+import { Mainboard, PortType } from "./hardware/mainboard";
+import { Module, StateChangePayload } from "./module";
 import { MachineState, State, StateType } from "./state";
 
 export class Machine {
   private readonly states: State<any>[] = [MachineState];
   private readonly activeModules: Module[] = [];
-  private readonly comms: MainboardComm = new MainboardComm(this.config.mainboard);
 
   constructor(private readonly config: MachineConfig) {
     // bind state changes
@@ -38,34 +36,23 @@ export class Machine {
 
   private onStateChange(newState: StateType, state: State<any>, oldState?: StateType) {
     console.log(`State changed from ${oldState} to ${newState}`);
+    const payload = new StateChangePayload(state, this.config.mainboard);
+
     for (const module of this.config.modules || []) {
       const isActive = module.active.isTrue(state, newState, oldState);
       if (isActive && !this.activeModules.includes(module)) {
         this.activeModules.push(module);
-        module.onActivated?.({
-          triggeringState: state,
-          mainboard: this.comms
-        });
+        module.onActivated?.(payload);
       } else if (!isActive && this.activeModules.includes(module)) {
         this.activeModules.splice(this.activeModules.indexOf(module), 1);
-        module.onDeactivated?.({
-          triggeringState: state,
-          mainboard: this.comms
-        });
+        module.onDeactivated?.(payload);
       }
     }
   }
 }
 
-export class MainboardComm {
-  constructor(private readonly mainboard: MainBoard) { }
-  async send(command: FastCommand, port: PortType): Promise<void> {
-    await this.mainboard.send(command, port);
-  }
-}
-
 export type MachineConfig = {
-  mainboard: MainBoard;
+  mainboard: Mainboard;
   states?: State<any>[];
   modules?: Module[];
 }
