@@ -1,0 +1,33 @@
+{
+  "folders": [
+    {
+      "name": "JSpin Core",
+      "path": "./packages/jspin-core"
+    },
+    {
+      "name": "JSpin Examples", 
+      "path": "./packages/jspin-examples"
+    },
+    {
+      "name": "Root",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "typescript.preferences.includePackageJsonAutoImports": "on",
+    "typescript.workspaceSymbols.scope": "allOpenProjects",
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/dist": true,
+      "**/build": true,
+      "**/*.tsbuildinfo": true
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-vscode.vscode-typescript-next",
+      "bradlc.vscode-tailwindcss",
+      "esbenp.prettier-vscode"
+    ]
+  }
+}

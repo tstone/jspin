@@ -1,13 +1,20 @@
-import { Machine } from "./machine";
-import { Neutron } from "./neutron";
-import { MachineState, StateMachine } from "./state-machine";
-import { Module, StateChangePayload } from "./module";
-import { transition as transitioned, when } from "./module-rules";
+import {
+  Machine,
+  Neutron,
+  MachineState,
+  Module,
+  StateChangePayload,
+  when,
+  NeutronExpansion,
+  LED,
+  CabinetIO,
+  IO_0804,
+  IO_1616,
+  IO_3208,
+  IoNetwork,
+  AutoStart
+} from "@jspin/core";
 import Color from "color";
-import { NeutronExpansion } from "./hardware/expansion-board";
-import { LED } from "./hardware/led";
-import { CabinetIO, IO_0804, IO_1616, IO_3208, IoNetwork } from "./hardware/io-network";
-import { AutoStart } from "./modules/auto-start";
 
 // hardware, states, modules
 // hardware defines what exists
@@ -19,7 +26,6 @@ import { AutoStart } from "./modules/auto-start";
 const TestLED = new LED(NeutronExpansion, 0, 1);
 
 const [L1, L2] = LED.port(NeutronExpansion, 0, 2);
-
 
 class TurnOnLEDTest implements Module {
   readonly active = when(MachineState, 'game');

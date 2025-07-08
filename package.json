@@ -1,29 +1,35 @@
 {
-  "name": "jspin",
+  "name": "jspin-monorepo",
   "version": "0.1.0",
-  "description": "",
+  "description": "JSpin monorepo for pinball machine control",
   "license": "ISC",
   "author": "",
-  "type": "commonjs",
-  "main": "index.js",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "build": "tsc",
-    "start": "ts-node src/index.ts",
-    "test": "jest"
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "start:examples": "npm run start --workspace=@jspin/examples",
+    "start:basic": "npm run start:basic --workspace=@jspin/examples",
+    "start:switch": "npm run start:switch --workspace=@jspin/examples",
+    "start:led": "npm run start:led --workspace=@jspin/examples",
+    "dev:examples": "npm run dev --workspace=@jspin/examples",
+    "dev:basic": "npm run dev:basic --workspace=@jspin/examples", 
+    "dev:switch": "npm run dev:switch --workspace=@jspin/examples",
+    "dev:led": "npm run dev:led --workspace=@jspin/examples",
+    "clean": "rimraf packages/*/dist packages/*/node_modules node_modules",
+    "install:all": "npm install"
   },
   "devDependencies": {
     "@types/jest": "30.0.0",
     "@types/lodash": "^4.17.20",
     "jest": "30.0.4",
     "prettier": "^3.6.2",
+    "rimraf": "^6.0.1",
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
-  },
-  "dependencies": {
-    "color": "^5.0.0",
-    "lodash": "^4.17.21",
-    "on-change": "^5.0.1",
-    "serialport": "^13.0.0"
   }
 }

@@ -1,18 +1,12 @@
 module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  roots: ['<rootDir>/src'],
-  testMatch: [
-    '**/__tests__/**/*.ts',
-    '**/?(*.)+(spec|test).ts'
-  ],
-  transform: {
-    '^.+\\.ts$': 'ts-jest',
-  },
-  collectCoverageFrom: [
-    'src/**/*.ts',
-    '!src/**/*.d.ts',
+  projects: [
+    '<rootDir>/packages/jspin-core'
   ],
   coverageDirectory: 'coverage',
+  collectCoverageFrom: [
+    'packages/*/src/**/*.ts',
+    '!packages/*/src/**/*.d.ts',
+    '!packages/*/src/index.ts'
+  ],
   coverageReporters: ['text', 'lcov', 'html'],
 };
