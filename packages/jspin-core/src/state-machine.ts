@@ -35,5 +35,6 @@ export class StateMachine<T extends StateType = any> extends EventEmitter<{ chan
  *
  * `ready` is the state when the machine is not booting or in game mode.
  * `game` is the state when the machine is actively playing a game.
+ * `settings` is the state when the machine is in the settings menu.
  */
-export const MachineState = new StateMachine<'boot' | 'ready' | 'game'>('boot');
+export const MachineState = new StateMachine<'boot' | 'ready' | 'game' | 'settings'>('boot');

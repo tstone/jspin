@@ -3,7 +3,7 @@ export { Machine } from "./machine";
 export { Neutron } from "./neutron";
 export { MachineState, StateMachine } from "./state-machine";
 export { stateTransitionedFrom, stateIs, always, eventIs, ActorRule } from "./actor-rules";
-export { FastDataParser, FastData, SwitchChange } from "./data-parser";
+export { FastDataParser, FastData } from "./parser/data-parser";
 
 // Actor exports
 export { PinActor, PinActorHandler, PinActorListener, PinActorConfigured, handler } from "./pin-actor";
@@ -15,9 +15,3 @@ export { CabinetIO, IO_0804, IO_1616, IO_3208, IoNetwork } from "./hardware/io-n
 export { Coil } from "./hardware/coil";
 export { Switch } from "./hardware/switch";
 export { Mainboard } from "./hardware/mainboard";
-
-// Command exports
-export { ConfigureHardware } from "./commands/configure-hardware";
-export { FastCommand } from "./commands/fast-command";
-export { ID } from "./commands/id";
-export { SetLEDColor } from "./commands/set-led-color";

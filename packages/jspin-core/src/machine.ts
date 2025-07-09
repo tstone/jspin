@@ -1,8 +1,9 @@
-import { FastDataParser, SwitchChange } from "./data-parser";
+import { FastDataParser } from "./parser/data-parser";
 import { IoNetwork } from "./hardware/io-network";
 import { Mainboard, PortType } from "./hardware/mainboard";
 import { PinActor } from "./pin-actor";
 import { MachineState } from "./state-machine";
+import { PinHardware } from "./hardware/hardware-wrapper";
 
 export class Machine {
   private readonly mainboard: Mainboard;
@@ -14,9 +15,10 @@ export class Machine {
     this.ioNet = config.ioNet;
     this.actors = config.actors.slice();
 
+    const hardware = new PinHardware(this.mainboard);
     for (const actor of this.actors) {
-      // Bind the actor's events to the machine
       actor.bindings.listener(this.onActorEvent.bind(this));
+      actor.bindings.hardware(hardware);
     }
   }
 
@@ -39,8 +41,11 @@ export class Machine {
 
   private async onActorEvent(actor: PinActor<any>, event: Record<string, any>) {
     console.log('Actor event:', actor.constructor.name, event);
-    // Echo event to all actors
-    await Promise.all(this.actors.map(a => a.bindings.event(event)));
+    // Echo event to all other actors
+    await Promise.all(this.actors.map(a => {
+      if (a === actor) return; // Skip self
+      a.bindings.event(event);
+    }));
   }
 }
 

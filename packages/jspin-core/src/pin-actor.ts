@@ -40,15 +40,15 @@ export abstract class PinActor<Config extends Record<string, any>> {
     listener: (listener: PinActorListener) => {
       this.listener = listener;
     },
-    event: (event: Record<string, any>) => {
+    event: async (event: Record<string, any>) => {
       // Filter handlers based on their active rules by checking registered state machines
       const activeHandlers = this.handlers.filter(({ rule }) => {
         return rule.isTrue(event);
       });
-      // Run all handlers in parallel
-      return Promise.all(
-        activeHandlers.map(({ handler }) => handler(event))
-      );
+      // Run all handlers
+      for (const { handler } of activeHandlers) {
+        await handler(event);
+      }
     },
     hardware: (hardware: PinHardware) => {
       this._hardware = hardware;

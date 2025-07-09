@@ -1,7 +1,6 @@
 import { SerialPort } from "serialport";
-import { ID } from "./commands/id";
-import { ConfigureHardware } from "./commands/configure-hardware";
-import { FastCommand } from "./commands/fast-command";
+import { idCmd } from "./commands/id";
+import { configureHardwareCmd } from "./commands/configure-hardware";
 import { DataListener, Mainboard, PortType } from "./hardware/mainboard";
 import { NeutronExpansion } from "./hardware/expansion-board";
 
@@ -36,12 +35,12 @@ export class Neutron implements Mainboard {
     console.log('IO Port opened:', this.ioPort.path);
 
     // Wait for board to boot up
-    this.send(new ID(), 'io');
+    this.send(idCmd(), 'io');
     const resp = await this.waitForResponse(this.ioPort);
     console.log('Board ID:', resp.toString().trim());
 
     // Tell board it's a Neutron
-    this.send(new ConfigureHardware('2000', { switchReporting: 'verbose' }), 'io');
+    this.send(configureHardwareCmd('2000', { switchReporting: 'verbose' }), 'io');
     const resp2 = await this.waitForResponse(this.ioPort);
     console.log('Configuration response:', resp2.toString().trim());
 
@@ -59,7 +58,7 @@ export class Neutron implements Mainboard {
     if (this.expPort) {
       await this.openPort(this.expPort);
       console.log('EXP Port opened:', this.expPort.path);
-      this.send(new ID(NeutronExpansion), 'exp');
+      this.send(idCmd(NeutronExpansion), 'exp');
       const resp3 = await this.waitForResponse(this.expPort);
       console.log('EXP configuration response:', resp3.toString().trim());
 
@@ -69,15 +68,14 @@ export class Neutron implements Mainboard {
     }
   }
 
-  send(command: FastCommand, port?: PortType): boolean {
+  send(data: string, port?: PortType): boolean {
     port ||= 'io';
-    const str = command.toString() + '\r';
-    console.log(`Sending command to ${port} port:`, str.trim());
+    console.log(`Sending command to ${port} port:`, data);
 
     if (port === 'io') {
-      return this.ioPort.write(str);
+      return this.ioPort.write(data);
     } else if (port === 'exp' && this.expPort) {
-      return this.expPort.write(str);
+      return this.expPort.write(data);
     }
     return false;
   }
