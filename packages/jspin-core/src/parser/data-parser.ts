@@ -16,4 +16,3 @@ export class FastDataParser {
 }
 
 export type FastData = SwitchChange;
-

@@ -47,10 +47,10 @@ export class IoNetworkBoard {
   public readonly coils: Coil[];
 
   constructor(
-    private readonly details: IoNetworkBoardDesc,
+    public readonly details: IoNetworkBoardDesc,
     public readonly networkIndex: number,
-    private readonly switchIndexOffset: number,
-    private readonly coilIndexOffset: number,
+    switchIndexOffset: number,
+    coilIndexOffset: number,
   ) {
     this.switches = Array.from({ length: details.switchCount }, (_, i) => new Switch(i + switchIndexOffset));
     this.coils = Array.from({ length: details.coilCount }, (_, i) => new Coil(i + coilIndexOffset));

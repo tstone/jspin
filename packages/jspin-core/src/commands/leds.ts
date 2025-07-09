@@ -16,6 +16,6 @@ export class LEDs {
       return `${indexHex}${hex}`;
     }).join(',');
 
-    return `RS@${expAddress}:${colors}`;
+    return `RS@${expAddress}:${colors}\r`;
   }
 }
