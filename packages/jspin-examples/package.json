@@ -12,10 +12,14 @@
     "start:basic": "ts-node src/basic-example.ts",
     "start:switch": "ts-node src/switch-example.ts", 
     "start:led": "ts-node src/led-animation-example.ts",
+    "start:actor": "ts-node src/pin-actor-example.ts",
+    "start:typed": "ts-node src/typed-events-example.ts",
     "dev": "ts-node --watch src/basic-example.ts",
     "dev:basic": "ts-node --watch src/basic-example.ts",
     "dev:switch": "ts-node --watch src/switch-example.ts",
-    "dev:led": "ts-node --watch src/led-animation-example.ts"
+    "dev:led": "ts-node --watch src/led-animation-example.ts",
+    "dev:actor": "ts-node --watch src/pin-actor-example.ts",
+    "dev:typed": "ts-node --watch src/typed-events-example.ts"
   },
   "dependencies": {
     "@jspin/core": "file:../jspin-core",

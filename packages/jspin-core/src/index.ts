@@ -2,10 +2,11 @@
 export { Machine } from "./machine";
 export { Neutron } from "./neutron";
 export { MachineState, StateMachine } from "./state-machine";
-export { Module, StateChangePayload } from "./module";
-export { transition as transitioned, when } from "./module-rules";
+export { stateTransitionedFrom, stateIs, always, eventIs, ActorRule } from "./actor-rules";
 export { FastDataParser, FastData, SwitchChange } from "./data-parser";
-export { Repository } from "./repository";
+
+// Actor exports
+export { PinActor, PinActorHandler, PinActorListener, PinActorConfigured, handler } from "./pin-actor";
 
 // Hardware exports
 export { NeutronExpansion } from "./hardware/expansion-board";
@@ -20,7 +21,3 @@ export { ConfigureHardware } from "./commands/configure-hardware";
 export { FastCommand } from "./commands/fast-command";
 export { ID } from "./commands/id";
 export { SetLEDColor } from "./commands/set-led-color";
-
-// Module exports
-export { AutoStart } from "./modules/auto-start";
-export { Payment } from "./modules/payment";

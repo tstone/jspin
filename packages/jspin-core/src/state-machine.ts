@@ -4,6 +4,7 @@ export type StateType = string | number;
 
 export class StateMachine<T extends StateType = any> extends EventEmitter<{ change: [T, T, StateMachine<T>] }> {
   private current: T;
+  private past?: T;
 
   constructor(initial: T) {
     super();
@@ -19,9 +20,13 @@ export class StateMachine<T extends StateType = any> extends EventEmitter<{ chan
       return; // No change, do nothing
     }
 
-    const old = this.current;
+    this.past = this.current; // Store the previous state
     this.current = newValue;
-    this.emit('change', newValue, old, this);
+    this.emit('change', newValue, this.past, this);
+  }
+
+  get previous(): T | undefined {
+    return this.past;
   }
 }
 

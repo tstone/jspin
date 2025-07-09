@@ -1,10 +1,6 @@
 import {
   Machine,
   Neutron,
-  MachineState,
-  Module,
-  StateChangePayload,
-  when,
   NeutronExpansion,
   LED,
   CabinetIO,
@@ -12,9 +8,7 @@ import {
   IO_1616,
   IO_3208,
   IoNetwork,
-  AutoStart
 } from "@jspin/core";
-import Color from "color";
 
 // hardware, states, modules
 // hardware defines what exists
@@ -24,26 +18,7 @@ import Color from "color";
 // modules can interact with hardware
 
 const TestLED = new LED(NeutronExpansion, 0, 1);
-
 const [L1, L2] = LED.port(NeutronExpansion, 0, 2);
-
-class TurnOnLEDTest implements Module {
-  readonly active = when(MachineState, 'game');
-
-  async onActivated({ leds }: StateChangePayload) {
-    console.log('LED Test Module Activated');
-    await leds.setSingle(TestLED, Color.rgb(100, 40, 255));
-
-    // per LED animations
-    // await leds.clearQueue(TestLED);
-    // await leds.enqueue(TestLED, Fade(Black, Blue, 500));
-    // await leds.parallelEnqueue(TestLED, Fade(Black, Blue, 500)); -- runs simultaneous to current animation
-
-    // whole playfield animations
-    // await leds.sequence.play(Fancyness)
-  }
-}
-
 const ioNet = new IoNetwork(CabinetIO, IO_1616, IO_3208, IO_0804);
 
 // read switch by board, port, and pin
@@ -58,10 +33,7 @@ const ioNet = new IoNetwork(CabinetIO, IO_1616, IO_3208, IO_0804);
       expPort: '/dev/ttyACM1',
     }),
     ioNet,
-    modules: [
-      new AutoStart(),
-      new TurnOnLEDTest()
-    ]
+    actors: [],
   });
   await machine.run();
 })();
