@@ -18,7 +18,6 @@ export class DualWoundFlipper extends Device {
       secondaryPwmPower: this.config.main.secondaryPwmPower,
       secondaryPwmDurationTenthSeconds: this.config.main.secondaryPwmDurationTenthSeconds,
       restMs: this.config.main.restMs,
-      invertOffSwitch: true,
     };
     const holdDriverConfig: PulseHoldCancelDriverConfig = {
       mode: 'pulse+hold+cancel',
