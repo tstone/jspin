@@ -29,7 +29,7 @@ export class Machine<K extends Record<string, OrderedIoNetworkBoardDesc>> {
     await this.mainboard.initialize(this.onData.bind(this));
     // TODO: verify ionet config with CN:
     this.configureDrivers();
-    // TODO: watchdog
+    this.startWatchdog();
 
     // MAYBE: CP: https://fastpinball.com/fast-serial-protocol/exp/cp/
 
@@ -50,6 +50,12 @@ export class Machine<K extends Record<string, OrderedIoNetworkBoardDesc>> {
         }
       }
     }
+  }
+
+  private startWatchdog() {
+    setInterval(() => {
+      this.mainboard.send('WD:500');
+    }, 450);
   }
 
   private async onData(port: PortType, raw: string) {
