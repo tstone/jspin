@@ -1,13 +1,19 @@
-import { DriverConfig, PulseDriverConfig } from "../hardware/driver";
+import { DriverConfig, PulseCancelDriverConfig, PulseDriverConfig, PulseHoldCancelDriverConfig, PulseHoldDriverConfig } from "../hardware/driver";
 
 // https://fastpinball.com/fast-serial-protocol/net/dl/
 export function configureDriverCmd(driverId: number, config: DriverConfig) {
   let cmd: DlCommand | undefined = undefined;
 
   if (config.mode === 'disabled') {
-    cmd = disabledDriverCmd(driverId);
+    cmd = disabledCmd(driverId);
   } else if (config.mode == 'pulse') {
-    cmd = pulseDriverCmd(driverId, config);
+    cmd = pulseCmd(driverId, config);
+  } else if (config.mode == 'pulse+cancel') {
+    cmd = pulseCancelCmd(driverId, config);
+  } else if (config.mode == 'pulse+hold') {
+    cmd = pulseHoldCmd(driverId, config);
+  } else if (config.mode == 'pulse+hold+cancel') {
+    cmd = pulseHoldCancelCmd(driverId, config);
   }
 
   if (!cmd) {
@@ -17,46 +23,79 @@ export function configureDriverCmd(driverId: number, config: DriverConfig) {
   return `DL:${cmd.driverId},${triggerToHex(cmd.trigger)},${cmd.switchId},${cmd.mode},${cmd.param1},${cmd.param2},${cmd.param3},${cmd.param4},${cmd.param5}\r`
 }
 
-function disabledDriverCmd(driverId: number): DlCommand {
-  return {
+function disabledCmd(driverId: number): DlCommand {
+  return dl({
     driverId: driverId.toString(16),
-    trigger: {
-      enabled: false,
-      oneShot: false,
-      invertSwitch1: false,
-      invertSwitch2: false,
-      manual: false,
-      disableSwitch: false
-    },
-    switchId: "0",
-    mode: "0",
-    param1: "0",
-    param2: "0",
-    param3: "0",
-    param4: "0",
-    param5: "0"
-  }
+  });
 }
 
-function pulseDriverCmd(driverId: number, config: PulseDriverConfig): DlCommand {
-  return {
+function pulseCmd(driverId: number, config: PulseDriverConfig): DlCommand {
+  return dl({
     driverId: driverId.toString(16),
-    trigger: {
+    trigger: trigger({
       enabled: true,
-      oneShot: false,
-      invertSwitch1: false,
-      invertSwitch2: false,
-      manual: false,
-      disableSwitch: false
-    },
-    switchId: config.switch?.id.toString(16) || "0",
+      invertSwitch1: config.invertSwitch,
+    }),
+    switchId: config.switch?.id.toString(16),
     mode: "10",
     param1: config.initialPwmDurationMs.toString(16),
     param2: powerToHex(config.initialPwmPower),
-    param3: config.secondaryPwmDurationMs?.toString(16) || "0",
+    param3: config.secondaryPwmDurationMs?.toString(16),
     param4: powerToHex(config.secondaryPwmPower),
-    param5: config.restMs?.toString(16) || "0",
-  }
+    param5: config.restMs?.toString(16),
+  });
+}
+
+function pulseHoldCmd(driverId: number, config: PulseHoldDriverConfig): DlCommand {
+  return dl({
+    driverId: driverId.toString(16),
+    trigger: trigger({
+      enabled: true,
+      invertSwitch1: config.invertSwitch,
+    }),
+    switchId: config.switch?.id.toString(16),
+    mode: "18",
+    param1: config.initialPwmDurationMs.toString(16),
+    param2: powerToHex(config.initialPwmPower),
+    param3: powerToHex(config.secondaryPwmPower),
+    param4: config.restMs?.toString(16),
+  });
+}
+
+function pulseHoldCancelCmd(driverId: number, config: PulseHoldCancelDriverConfig): DlCommand {
+  return dl({
+    driverId: driverId.toString(16),
+    trigger: trigger({
+      enabled: true,
+      invertSwitch1: config.invertSwitch,
+      invertSwitch2: config.invertOffSwitch,
+    }),
+    switchId: config.switch?.id.toString(16),
+    mode: "20",
+    param1: config.offSwitch.id.toString(16),
+    param2: config.maxInitialOnTimeMs.toString(16),
+    param3: powerToHex(config.initialPwmPower),
+    param4: powerToHex(config.secondaryPwmPower),
+    param5: config.restMs?.toString(16),
+  });
+}
+
+function pulseCancelCmd(driverId: number, config: PulseCancelDriverConfig): DlCommand {
+  return dl({
+    driverId: driverId.toString(16),
+    trigger: trigger({
+      enabled: true,
+      invertSwitch1: config.invertSwitch,
+      invertSwitch2: config.invertOffSwitch,
+    }),
+    switchId: config.switch?.id.toString(16),
+    mode: "75",
+    param1: config.offSwitch.id.toString(16),
+    param2: config.initialPwmDurationMs.toString(16),
+    param3: powerToHex(config.secondaryPwmDurationTenthSeconds),
+    param4: powerToHex(config.secondaryPwmPower),
+    param5: config.restMs?.toString(16),
+  });
 }
 
 export function powerToHex(power?: number): string {
@@ -64,6 +103,31 @@ export function powerToHex(power?: number): string {
     return '00';
   }
   return Math.round(power).toString(16).padStart(2, '0');
+}
+
+function dl(values: Partial<DlCommand>): DlCommand {
+  return {
+    driverId: values.driverId ?? "0",
+    trigger: values.trigger ?? trigger({}),
+    switchId: values.switchId ?? "0",
+    mode: values.mode ?? "0",
+    param1: values.param1 ?? "0",
+    param2: values.param2 ?? "0",
+    param3: values.param3 ?? "0",
+    param4: values.param4 ?? "0",
+    param5: values.param5 ?? "0",
+  }
+}
+
+function trigger(values: Partial<DriverTrigger>): DriverTrigger {
+  return {
+    enabled: values.enabled ?? false,
+    oneShot: values.oneShot ?? false,
+    invertSwitch1: values.invertSwitch1 ?? false,
+    invertSwitch2: values.invertSwitch2 ?? false,
+    manual: values.manual ?? false,
+    disableSwitch: values.disableSwitch ?? false
+  }
 }
 
 export function triggerToHex(trigger: DriverTrigger): string {

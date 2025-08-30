@@ -1,7 +1,7 @@
 import { PinHardware } from "./hardware/hardware-wrapper";
 import { ActorRule } from "./actor-rules";
 
-export abstract class PinActor<Config extends Record<string, any>> {
+export abstract class PinActor<Config extends Record<string, any> = {}> {
   protected config: Config;
 
   private _hardware?: PinHardware;

@@ -17,6 +17,7 @@ export interface DisabledDriverConfig extends BaseDriverConfig {
   mode: 'disabled';
 }
 
+/** Activates the driver for a fixed duration */
 export interface PulseDriverConfig extends BaseDriverConfig {
   mode: 'pulse';
   initialPwmDurationMs: number;
@@ -27,28 +28,19 @@ export interface PulseDriverConfig extends BaseDriverConfig {
   secondaryPwmPower?: number;
   restMs?: number;
 }
-export interface PulseKickDriverConfig extends BaseDriverConfig {
-  mode: 'pulse+kick';
-  initialPwmDurationMs: number;
-  /** 0-255 */
-  initialPwmPower: number;
-  secondaryPwmDurationMs?: number;
-  /** 0-255 */
-  secondaryPwmPower?: number;
-  kickMs: number;
-}
 
+/** Keeps secondary PWM power active until switch is off */
 export interface PulseHoldDriverConfig extends BaseDriverConfig {
   mode: 'pulse+hold',
   initialPwmDurationMs: number;
   /** 0-255 */
   initialPwmPower: number;
-  secondaryPwmDurationMs?: number;
   /** 0-255 */
   secondaryPwmPower?: number;
   restMs?: number;
 }
 
+/** Keeps secondary PWM power active until a second switch is triggered */
 export interface PulseHoldCancelDriverConfig extends BaseDriverConfig {
   mode: 'pulse+hold+cancel';
   offSwitch: Switch;
@@ -61,6 +53,7 @@ export interface PulseHoldCancelDriverConfig extends BaseDriverConfig {
   restMs?: number;
 }
 
+/** Activates the driver for a fixed duration, but cancels on a second switch trigger */
 export interface PulseCancelDriverConfig extends BaseDriverConfig {
   mode: 'pulse+cancel';
   offSwitch: Switch;
@@ -78,6 +71,5 @@ export type DriverConfig =
   | PulseDriverConfig
   | PulseCancelDriverConfig
   | PulseHoldDriverConfig
-  | PulseHoldCancelDriverConfig
-  | PulseKickDriverConfig;
+  | PulseHoldCancelDriverConfig;
 // TODO: other driver configs

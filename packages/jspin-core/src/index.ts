@@ -2,11 +2,11 @@
 export { Machine } from "./machine";
 export { Neutron } from "./neutron";
 export { MachineState, StateMachine } from "./state-machine";
-export { stateTransitionedFrom, stateIs, always, eventIs, ActorRule } from "./actor-rules";
 export { FastDataParser, FastData } from "./parser/data-parser";
 
 // Actor exports
 export { PinActor, PinActorHandler, PinActorListener, PinActorConfigured, handler } from "./pin-actor";
+export { stateTransitionedFrom, stateIs, always, eventIs, not, ActorRule } from "./actor-rules";
 
 // Hardware exports
 export { Power } from "./hardware/power";
