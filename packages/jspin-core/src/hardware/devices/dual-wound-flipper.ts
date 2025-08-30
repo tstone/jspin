@@ -24,11 +24,11 @@ export class DualWoundFlipper extends Device {
       mode: 'pulse+hold+cancel',
       switch: this.config.eosSwitch,
       offSwitch: this.config.flipperButton,
+      invertOffSwitch: true,
       maxInitialOnTimeMs: this.config.hold.maxInitialOnTimeMs,
       initialPwmPower: this.config.hold.initialPwmPower,
       secondaryPwmPower: this.config.hold.secondaryPwmPower,
       restMs: this.config.hold.restMs,
-      invertOffSwitch: true,
     };
 
     this.configureDriver(this.config.main.driver.id, mainDriverConfig);

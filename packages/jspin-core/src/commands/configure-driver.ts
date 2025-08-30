@@ -100,9 +100,9 @@ function pulseCancelCmd(driverId: number, config: PulseCancelDriverConfig): DlCo
 
 export function powerToHex(power?: number): string {
   if (power === undefined) {
-    return '00';
+    return '0';
   }
-  return Math.round(power).toString(16).padStart(2, '0');
+  return Math.round(power).toString(16);
 }
 
 function dl(values: Partial<DlCommand>): DlCommand {
@@ -126,7 +126,7 @@ function trigger(values: Partial<DriverTrigger>): DriverTrigger {
     invertSwitch1: values.invertSwitch1 ?? false,
     invertSwitch2: values.invertSwitch2 ?? false,
     manual: values.manual ?? false,
-    disableSwitch: values.disableSwitch ?? false
+    disableSwitch: values.disableSwitch ?? true
   }
 }
 
@@ -140,7 +140,7 @@ export function triggerToHex(trigger: DriverTrigger): string {
     trigger.invertSwitch2 ? 1 : 0,
     trigger.manual ? 1 : 0,
     trigger.disableSwitch ? 1 : 0
-  ]
+  ].reverse();
   return parseInt(bitArray.join(''), 2).toString(16);
 }
 
