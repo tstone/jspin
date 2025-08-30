@@ -20,8 +20,10 @@ export interface DisabledDriverConfig extends BaseDriverConfig {
 export interface PulseDriverConfig extends BaseDriverConfig {
   mode: 'pulse';
   initialPwmDurationMs: number;
+  /** 0-255 */
   initialPwmPower: number;
   secondaryPwmDurationMs?: number;
+  /** 0-255 */
   secondaryPwmPower?: number;
   restMs?: number;
 }

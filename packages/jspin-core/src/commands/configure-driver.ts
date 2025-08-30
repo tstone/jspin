@@ -42,26 +42,35 @@ function pulseDriverCmd(driverId: number, config: PulseDriverConfig): DlCommand 
   return {
     driverId: driverId.toString(16),
     trigger: {
-      enabled: false,
+      enabled: true,
       oneShot: false,
       invertSwitch1: false,
       invertSwitch2: false,
       manual: false,
-      disableSwitch: false
+      disableSwitch: !config.switch
     },
     switchId: config.switch?.id.toString(16) || "0",
     mode: "10",
     param1: config.initialPwmDurationMs.toString(16),
-    param2: config.initialPwmPower.toString(16),
+    param2: powerToHex(config.initialPwmPower),
     param3: config.secondaryPwmDurationMs?.toString(16) || "0",
-    param4: config.secondaryPwmPower?.toString(16) || "0",
+    param4: powerToHex(config.secondaryPwmPower),
     param5: config.restMs?.toString(16) || "0",
   }
 }
 
-function triggerToHex(trigger: DriverTrigger): string {
+export function powerToHex(power?: number): string {
+  if (power === undefined) {
+    return '00';
+  }
+  return Math.round(power).toString(16).padStart(2, '0');
+}
+
+export function triggerToHex(trigger: DriverTrigger): string {
   const bitArray = [
     trigger.enabled ? 1 : 0,
+    0,
+    0,
     trigger.oneShot ? 1 : 0,
     trigger.invertSwitch1 ? 1 : 0,
     trigger.invertSwitch2 ? 1 : 0,
@@ -72,7 +81,7 @@ function triggerToHex(trigger: DriverTrigger): string {
 }
 
 
-type DriverTrigger = {
+export type DriverTrigger = {
   enabled: boolean;
   oneShot: boolean;
   invertSwitch1: boolean;
