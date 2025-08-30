@@ -1,5 +1,5 @@
 import { FastDataParser } from "./parser/data-parser";
-import { IoNetwork } from "./hardware/io-network";
+import { IoNetwork, OrderedIoNetworkBoardDesc } from "./hardware/io-network";
 import { Mainboard, PortType } from "./hardware/mainboard";
 import { PinActor } from "./pin-actor";
 import { MachineState } from "./state-machine";
@@ -8,12 +8,12 @@ import { configureDriverCmd } from "./commands/configure-driver";
 import { Device, GenericDrivenDevice } from "./hardware/device";
 import { triggerDriverCmd } from "./commands/trigger-driver";
 
-export class Machine {
+export class Machine<K extends Record<string, OrderedIoNetworkBoardDesc>> {
   private readonly mainboard: Mainboard;
-  private readonly ioNet?: IoNetwork;
+  private readonly ioNet?: IoNetwork<K>;
   private readonly actors: PinActor<any>[];
 
-  constructor(config: MachineConfig) {
+  constructor(config: MachineConfig<K>) {
     this.mainboard = config.mainboard;
     this.ioNet = config.ioNet;
     this.actors = config.actors?.slice() || [];
@@ -71,8 +71,8 @@ export class Machine {
   }
 }
 
-export type MachineConfig = {
+export type MachineConfig<K extends Record<string, OrderedIoNetworkBoardDesc>> = {
   mainboard: Mainboard;
   actors?: PinActor<any>[];
-  ioNet?: IoNetwork;
+  ioNet?: IoNetwork<K>;
 }

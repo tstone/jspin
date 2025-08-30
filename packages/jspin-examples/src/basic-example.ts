@@ -3,11 +3,11 @@ import {
   Neutron,
   NeutronExpansion,
   LED,
-  CabinetIO,
-  IO_1616,
-  IO_3208,
   IoNetwork,
   SingleCoil,
+  CabinetIO,
+  IO_3208,
+  IO_0804,
 } from "@jspin/core";
 
 // hardware, states, modules
@@ -20,13 +20,18 @@ import {
 const TestLED = new LED(NeutronExpansion, 0, 1);
 const [L1, L2] = LED.port(NeutronExpansion, 0, 2);
 
-const ioNet = new IoNetwork(CabinetIO, IO_3208, IO_1616);
+const ioNet = new IoNetwork({
+  cabinet: CabinetIO(0),
+  io3208: IO_3208(1),
+  lowerPlayfield: IO_0804(2),
+  upperPlayfield: IO_0804(3),
+});
 
-const LeftSling = ioNet.defineDevice(([_, Io3208]) => {
+const LeftSling = ioNet.defineDevice(({ io3208 }) => {
   return new SingleCoil({
-    driver: Io3208.drivers[1],
+    driver: io3208.drivers[1],
     mode: 'pulse',
-    switch: Io3208.switches[5],
+    switch: io3208.switches[5],
     initialPwmDurationMs: 20,
     initialPwmPower: 255,
     restMs: 80,

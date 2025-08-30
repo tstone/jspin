@@ -1,11 +1,13 @@
 import { IO_3208, IoNetwork, SingleCoil } from "@jspin/core";
 
-export const ioNet = new IoNetwork(IO_3208);
+export const ioNet = new IoNetwork({
+  io3208: IO_3208(0),
+});
 
-export const RightSling = ioNet.defineDevice(([Io3208]) => {
+export const RightSling = ioNet.defineDevice(({ io3208 }) => {
   return new SingleCoil({
-    driver: Io3208.drivers[7],
-    switch: Io3208.switches[0],
+    driver: io3208.drivers[7],
+    switch: io3208.switches[0],
     mode: 'pulse',
     initialPwmDurationMs: 20,
     initialPwmPower: 100,

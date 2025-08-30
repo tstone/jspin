@@ -3,17 +3,17 @@ import { Driver } from "./driver";
 import { Switch } from "./switch";
 
 /** Used to describe the I/O network of a machine */
-export class IoNetwork {
-  public readonly boards: IoNetworkBoard[] = [];
+export class IoNetwork<K extends Record<string, OrderedIoNetworkBoardDesc> = any> {
+  public readonly boards: Record<keyof K, IoNetworkBoard> = {} as any;
   public readonly devices: Device[] = [];
 
-  constructor(...boards: IoNetworkBoardDesc[]) {
+  constructor(boards: K) {
     let switchIndexOffset = 0;
     let driverIndexOffset = 0;
 
-    boards.forEach((boardDesc, index) => {
+    Object.entries(boards).forEach(([key, boardDesc], index) => {
       const board = new IoNetworkBoard(boardDesc, index, switchIndexOffset, driverIndexOffset);
-      this.boards.push(board);
+      this.boards[key as keyof K] = board;
       switchIndexOffset += boardDesc.switchCount;
       driverIndexOffset += boardDesc.driverCount;
     });
@@ -30,7 +30,7 @@ export class IoNetwork {
   }
 
   getSwitchById(id: number) {
-    for (const board of this.boards) {
+    for (const board of Object.values(this.boards)) {
       const switchItem = board.switches.find(s => s.id === id);
       if (switchItem) {
         return switchItem;
@@ -48,29 +48,28 @@ export class IoNetwork {
     return board.drivers.slice();
   }
 
-  defineDevice(def: (boards: IoNetworkBoard[]) => Device) {
+  defineDevice(def: (boards: Record<keyof K, IoNetworkBoard>) => Device) {
     const device = def(this.boards);
     this.devices.push(device);
     return device;
-  };
+  }
 
   private getBoard(id: BoardIdentifier) {
     if (typeof id === "number") {
-      return this.boards[id];
-    } else {
-      return this.boards.find(board => board.details == id)!;
+      return Object.values(this.boards).find(b => b.networkIndex === id)!;
     }
+    return this.boards[id];
   }
 }
 
-type BoardIdentifier = number | IoNetworkBoardDesc;
+type BoardIdentifier = number | string;
 
 export class IoNetworkBoard {
   public readonly switches: Switch[];
   public readonly drivers: Driver[];
 
   constructor(
-    public readonly details: IoNetworkBoardDesc,
+    public readonly details: OrderedIoNetworkBoardDesc,
     public readonly networkIndex: number,
     switchIndexOffset: number,
     driverIndexOffset: number,
@@ -81,31 +80,14 @@ export class IoNetworkBoard {
 }
 
 export interface IoNetworkBoardDesc {
-  desc: string;
   switchCount: number;
   driverCount: number;
 }
+export interface OrderedIoNetworkBoardDesc extends IoNetworkBoardDesc {
+  order: number;
+}
 
-export const CabinetIO: IoNetworkBoardDesc = {
-  desc: 'Cabinet IO Board',
-  switchCount: 24,
-  driverCount: 8,
-};
-
-export const IO_3208: IoNetworkBoardDesc = {
-  desc: 'I/O 3208',
-  switchCount: 32,
-  driverCount: 8,
-};
-
-export const IO_1616: IoNetworkBoardDesc = {
-  desc: 'I/O 1616',
-  switchCount: 16,
-  driverCount: 16,
-};
-
-export const IO_0804: IoNetworkBoardDesc = {
-  desc: 'I/O 0804',
-  switchCount: 8,
-  driverCount: 4,
-};
+export function CabinetIO(order: number) { return { order, switchCount: 24, driverCount: 8 }; }
+export function IO_3208(order: number) { return { order, switchCount: 32, driverCount: 8 }; }
+export function IO_1616(order: number) { return { order, switchCount: 16, driverCount: 16 }; }
+export function IO_0804(order: number) { return { order, switchCount: 8, driverCount: 4 }; }
