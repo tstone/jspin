@@ -15,7 +15,11 @@ export class Machine<K extends Record<string, OrderedIoNetworkBoardDesc>> {
     this.ioNet = config.ioNet;
     this.actors = config.actors?.slice() || [];
 
-    for (const state of config.states || []) {
+    const states = Array.from(new Set([
+      // automatically add built-in states
+      MachineState
+    ].concat(config.states || [])));
+    for (const state of states) {
       state.addListener('change', this.onStateChange.bind(this));
     }
 

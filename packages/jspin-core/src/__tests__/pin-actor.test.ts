@@ -1,6 +1,6 @@
-import { always, stateIs } from "../actor-rules"
+import { always, stateEntered, stateIs } from "../actor-rules"
 import { PinActor, handler } from '../pin-actor';
-import { MachineState } from "../state-machine";
+import { MachineState, StateChange } from "../state-machine";
 
 describe('PinActor', () => {
   describe('handlers', () => {
@@ -14,7 +14,7 @@ describe('PinActor', () => {
     it('should run on state changes', async () => {
       const actor = new TestActor({});
       expect(actor.invoked).toBe(false);
-
+      actor.bindings.event(new StateChange('ready', 'game', MachineState));
       expect(actor.invoked).toBe(true);
     });
   });
@@ -28,7 +28,7 @@ class TestActor extends PinActor {
     this.invoked = true;
   }
 
-  @handler(stateIs(MachineState, 'ready'))
+  @handler(stateEntered(MachineState, 'ready'))
   async ready(): Promise<void> {
     this.invoked = true;
   }
