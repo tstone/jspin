@@ -7,7 +7,7 @@ export const ioNet = new IoNetwork({
 export const RightSling = ioNet.defineDevice(({ io3208 }) => {
   return new SingleCoil({
     driver: io3208.drivers[7],
-    switch: io3208.switches[0],
+    switch: io3208.switches[31],
     mode: 'pulse',
     initialPwmDurationMs: 20,
     initialPwmPower: 100,
