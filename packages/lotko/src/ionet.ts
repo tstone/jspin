@@ -21,7 +21,8 @@ export const LeftFlipper = ioNet.defineDevice(({ io3208 }) => new DualWoundFlipp
   hold: {
     driver: io3208.drivers[2],
     maxInitialOnTimeMs: 20,
-    initialPwmPower: Power.fromPercent(0.75),
+    initialPwmPower: Power.full,
+    secondaryPwmPower: Power.fromPercent(0.66),
   },
   eosSwitch: io3208.switches[30],
   flipperButton: io3208.switches[31],
