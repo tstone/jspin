@@ -2,7 +2,7 @@ import EventEmitter from 'node:events';
 
 export type StateType = string | number;
 
-export class StateMachine<T extends StateType = any> extends EventEmitter<{ change: [T, T, StateMachine<T>] }> {
+export class StateMachine<T extends StateType = any> extends EventEmitter<{ change: [StateChange] }> {
   private current: T;
   private past?: T;
 
@@ -22,12 +22,16 @@ export class StateMachine<T extends StateType = any> extends EventEmitter<{ chan
 
     this.past = this.current; // Store the previous state
     this.current = newValue;
-    this.emit('change', newValue, this.past, this);
+    this.emit('change', new StateChange(newValue, this.past, this));
   }
 
   get previous(): T | undefined {
     return this.past;
   }
+}
+
+export class StateChange {
+  constructor(public newState: StateType, public oldState: StateType | undefined, public machine: StateMachine) { }
 }
 
 /**

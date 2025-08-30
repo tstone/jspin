@@ -1,4 +1,4 @@
-import { StateMachine, StateType } from "./state-machine";
+import { StateChange, StateMachine, StateType } from "./state-machine";
 
 export abstract class ActorRule {
   abstract isTrue(event: Object): boolean;
@@ -78,6 +78,29 @@ export function always(): ActorRule {
 }
 
 /**
+ * Creates a rule that is always true, but only fires n times.
+ */
+export function nTimes(n: number): ActorRule {
+  let count = 0;
+  return new class extends ActorRule {
+    isTrue(): boolean {
+      if (count < n) {
+        count++;
+        return true;
+      }
+      return false;
+    }
+  };
+}
+
+/**
+ * Creates a rule that is always true, but only fires once.
+ */
+export function once() {
+  return nTimes(1);
+}
+
+/**
  * Creates a rule that checks if a state machine is in a specific state.
  * 
  * @example
@@ -92,6 +115,22 @@ export function stateIs<T extends StateType>(state: StateMachine, value: T) {
   return new class extends ActorRule {
     isTrue(): boolean {
       return state.state == value
+    }
+  };
+}
+
+export function stateEntered<T extends StateType>(state: StateMachine, value: T) {
+  return new class extends ActorRule {
+    isTrue(event: Object): boolean {
+      return event instanceof StateChange && event.machine == state && event.newState == value;
+    }
+  };
+}
+
+export function stateExited<T extends StateType>(state: StateMachine, value: T) {
+  return new class extends ActorRule {
+    isTrue(event: Object): boolean {
+      return event instanceof StateChange && event.machine == state && event.oldState == value;
     }
   };
 }

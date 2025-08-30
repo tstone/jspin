@@ -2,7 +2,7 @@ import { FastDataParser } from "./parser/data-parser";
 import { IoNetwork, OrderedIoNetworkBoardDesc } from "./hardware/io-network";
 import { Mainboard, PortType } from "./hardware/mainboard";
 import { PinActor } from "./pin-actor";
-import { MachineState } from "./state-machine";
+import { MachineState, StateChange, StateMachine } from "./state-machine";
 import { PinHardware } from "./hardware/hardware-wrapper";
 
 export class Machine<K extends Record<string, OrderedIoNetworkBoardDesc>> {
@@ -14,6 +14,10 @@ export class Machine<K extends Record<string, OrderedIoNetworkBoardDesc>> {
     this.mainboard = config.mainboard;
     this.ioNet = config.ioNet;
     this.actors = config.actors?.slice() || [];
+
+    for (const state of config.states || []) {
+      state.addListener('change', this.onStateChange.bind(this));
+    }
 
     for (const device of this.ioNet?.devices || []) {
       device.bindings.mainboard(this.mainboard);
@@ -27,7 +31,7 @@ export class Machine<K extends Record<string, OrderedIoNetworkBoardDesc>> {
   }
 
   async run(): Promise<void> {
-    this.mainboard.initialize(this.onData.bind(this));
+    await this.mainboard.initialize(this.onData.bind(this));
     // TODO: verify/error check ionet config with CN:
 
     this.configureDevices();
@@ -70,10 +74,15 @@ export class Machine<K extends Record<string, OrderedIoNetworkBoardDesc>> {
       a.bindings.event(event);
     }));
   }
+
+  private async onStateChange(event: StateChange) {
+    await Promise.all(this.actors.map(actor => actor.bindings.event(event)));
+  }
 }
 
 export type MachineConfig<K extends Record<string, OrderedIoNetworkBoardDesc>> = {
   mainboard: Mainboard;
-  actors?: PinActor<any>[];
   ioNet?: IoNetwork<K>;
+  actors?: PinActor<any>[];
+  states?: StateMachine[];
 }

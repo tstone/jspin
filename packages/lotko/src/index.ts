@@ -1,22 +1,10 @@
-import { always, handler, Machine, MachineState, Neutron, PinActor, stateIs, not } from "@jspin/core";
+import { allOf, handler, Machine, MachineState, Neutron, PinActor, stateExited, stateEntered, AutoActivateDevices } from "@jspin/core";
 import { ioNet, LeftFlipper } from "./ionet";
 
 class AutoStart extends PinActor {
-  @handler(stateIs(MachineState, 'ready'))
+  @handler(stateEntered(MachineState, 'ready'))
   onReady() {
     MachineState.state = 'game';
-  }
-}
-
-class ActivateHardware extends PinActor {
-  @handler(stateIs(MachineState, 'game'))
-  onGame() {
-    LeftFlipper.activate();
-  }
-
-  @handler(not(stateIs(MachineState, 'game')))
-  onNotGame() {
-    LeftFlipper.deactivate();
   }
 }
 
@@ -28,7 +16,7 @@ class ActivateHardware extends PinActor {
     }),
     ioNet,
     actors: [
-      new ActivateHardware({}),
+      new AutoActivateDevices(ioNet),
       new AutoStart({}),
     ],
   });

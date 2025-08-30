@@ -7,7 +7,12 @@ module.exports = {
     '**/?(*.)+(spec|test).ts'
   ],
   transform: {
-    '^.+\\.ts$': 'ts-jest',
+    '^.+\\.ts$': ['ts-jest', {
+      tsconfig: {
+        experimentalDecorators: true,
+        emitDecoratorMetadata: true,
+      },
+    }],
   },
   collectCoverageFrom: [
     'src/**/*.ts',

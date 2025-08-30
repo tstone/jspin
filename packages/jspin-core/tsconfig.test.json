@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist/tests",
+    "types": ["jest", "node"],
+    "composite": true
+  },
+  "include": [
+    "src/**/*.test.ts",
+    "src/**/__tests__/**/*"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules"
+  ]
+}

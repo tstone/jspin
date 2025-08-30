@@ -13,15 +13,14 @@
     "skipLibCheck": true,
     "composite": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "types": ["jest", "node"]
   },
   "include": [
     "src/**/*"
   ],
   "exclude": [
     "dist",
-    "node_modules",
-    "**/*.test.ts",
-    "**/__tests__/**"
+    "node_modules"
   ]
 }

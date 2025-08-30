@@ -6,7 +6,21 @@ export { FastDataParser, FastData } from "./parser/data-parser";
 
 // Actor exports
 export { PinActor, PinActorHandler, PinActorListener, PinActorConfigured, handler } from "./pin-actor";
-export { stateTransitionedFrom, stateIs, always, eventIs, not, ActorRule } from "./actor-rules";
+export {
+  allOf,
+  anyOf,
+  stateIs,
+  stateAnyOf,
+  stateEntered,
+  stateExited,
+  eventIs,
+  always,
+  not,
+  nTimes,
+  once,
+  ActorRule
+} from "./actor-rules";
+export { AutoActivateDevices } from "./actor/auto-activate";
 
 // Hardware exports
 export { Power } from "./hardware/power";
