@@ -9,10 +9,13 @@ export { FastDataParser, FastData } from "./parser/data-parser";
 export { PinActor, PinActorHandler, PinActorListener, PinActorConfigured, handler } from "./pin-actor";
 
 // Hardware exports
+export { Power } from "./hardware/power";
 export { NeutronExpansion } from "./hardware/expansion-board";
 export { LED } from "./hardware/led";
 export { CabinetIO, IO_0804, IO_1616, IO_3208, IoNetwork } from "./hardware/io-network";
-export { Driver as Coil } from "./hardware/driver";
+export { Driver } from "./hardware/driver";
 export { Switch } from "./hardware/switch";
 export { Mainboard } from "./hardware/mainboard";
-export { Device, GenericDrivenDevice, SingleCoil } from "./hardware/device";
+export { Device } from "./hardware/devices/device";
+export { SingleCoil } from "./hardware/devices/single-coil";
+export { DualWoundFlipper } from "./hardware/devices/dual-wound-flipper";

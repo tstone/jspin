@@ -47,7 +47,7 @@ function pulseDriverCmd(driverId: number, config: PulseDriverConfig): DlCommand 
       invertSwitch1: false,
       invertSwitch2: false,
       manual: false,
-      disableSwitch: !config.switch
+      disableSwitch: false
     },
     switchId: config.switch?.id.toString(16) || "0",
     mode: "10",

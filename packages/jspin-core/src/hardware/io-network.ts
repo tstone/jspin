@@ -1,4 +1,4 @@
-import { Device } from "./device";
+import { Device } from "./devices/device";
 import { Driver } from "./driver";
 import { Switch } from "./switch";
 

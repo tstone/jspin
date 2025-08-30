@@ -44,6 +44,13 @@ const machine = new Machine({
 await machine.run();
 ```
 
+## Concepts
+
+- Coils and motors are powered by drivers
+- A `Device` is a contract that uses one or more `Driver`
+- Drivers and switches are attached to the I/O network
+- The I/O network is made up of the loop of FAST I/O devices (3208, 1616, 0804 etc.)
+
 ## API Reference
 
 ### Hardware Classes
@@ -64,6 +71,10 @@ await machine.run();
 - `SetLEDColor` - Set LED colors
 - `ConfigureHardware` - Configure hardware settings
 - `ID` - Query hardware identification
+
+### Custom Devices
+
+It's possible to create your own device implementation by extending `Device`.
 
 ## Development
 

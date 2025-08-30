@@ -1,6 +1,8 @@
 
+export type DriverTriggerMode = 'automatic' | 'manual' | 'disconnected' | 'hold';
+
 // https://fastpinball.com/fast-serial-protocol/net/tl/
-export function triggerDriverCmd(driverId: number, mode: 'automatic' | 'manual' | 'disconnected' | 'hold') {
+export function triggerDriverCmd(driverId: number, mode: DriverTriggerMode) {
   const modeValue = mode === 'automatic' ? '0' :
     mode === 'manual' ? '1' :
       mode === 'disconnected' ? '2' : '3';
