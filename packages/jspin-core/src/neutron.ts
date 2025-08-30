@@ -44,12 +44,6 @@ export class Neutron implements Mainboard {
     const resp2 = await this.waitForResponse(this.ioPort);
     console.log('Configuration response:', resp2.toString().trim());
 
-    // TODO: CP: https://fastpinball.com/fast-serial-protocol/exp/cp/
-    // TODO: configure drivers
-    // TODO: configure switches
-    // Configure LEDs?
-    // TODO: watchdog
-
     // Setup is done, bind to machine
     this.ioPort.on('data', (data) => {
       dataListener('io', data.toString());

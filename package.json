@@ -23,8 +23,7 @@
     "dev:led": "npm run dev:led --workspace=@jspin/examples",
     "dev:actor": "npm run dev:actor --workspace=@jspin/examples",
     "dev:typed": "npm run dev:typed --workspace=@jspin/examples",
-    "clean": "rimraf packages/*/dist packages/*/node_modules node_modules",
-    "install:all": "npm install"
+    "clean": "rimraf packages/*/dist packages/*/node_modules node_modules"
   },
   "devDependencies": {
     "@types/jest": "30.0.0",

@@ -1,23 +1,32 @@
-import { Coil } from "./coil";
+import { Device } from "./device";
+import { Driver } from "./driver";
 import { Switch } from "./switch";
 
+/** Used to describe the I/O network of a machine */
 export class IoNetwork {
   public readonly boards: IoNetworkBoard[] = [];
+  public readonly devices: Device[] = [];
 
   constructor(...boards: IoNetworkBoardDesc[]) {
     let switchIndexOffset = 0;
-    let coilIndexOffset = 0;
+    let driverIndexOffset = 0;
 
     boards.forEach((boardDesc, index) => {
-      const board = new IoNetworkBoard(boardDesc, index, switchIndexOffset, coilIndexOffset);
+      const board = new IoNetworkBoard(boardDesc, index, switchIndexOffset, driverIndexOffset);
       this.boards.push(board);
       switchIndexOffset += boardDesc.switchCount;
-      coilIndexOffset += boardDesc.coilCount;
+      driverIndexOffset += boardDesc.driverCount;
     });
   }
 
-  getSwitch(board: number, index: number) {
-    return this.boards[board].switches[index];
+  getSwitch(boardId: BoardIdentifier, switchIndex: number) {
+    const board = this.getBoard(boardId);
+    return board.switches[switchIndex];
+  }
+
+  getSwitches(boardId: BoardIdentifier) {
+    const board = this.getBoard(boardId);
+    return board.switches.slice();
   }
 
   getSwitchById(id: number) {
@@ -29,60 +38,74 @@ export class IoNetwork {
     }
   }
 
-  getSwitches(board: number) {
-    return this.boards[board].switches.slice();
+  getDriver(boardId: BoardIdentifier, driverIndex: number) {
+    const board = this.getBoard(boardId);
+    return board.drivers[driverIndex];
   }
 
-  getCoil(board: number, index: number) {
-    return this.boards[board].coils[index];
+  getDrivers(boardId: BoardIdentifier) {
+    const board = this.getBoard(boardId);
+    return board.drivers.slice();
   }
 
-  getCoils(board: number) {
-    return this.boards[board].coils.slice();
+  defineDevice(def: (boards: IoNetworkBoard[]) => Device) {
+    const device = def(this.boards);
+    this.devices.push(device);
+    return device;
+  };
+
+  private getBoard(id: BoardIdentifier) {
+    if (typeof id === "number") {
+      return this.boards[id];
+    } else {
+      return this.boards.find(board => board.details == id)!;
+    }
   }
 }
 
+type BoardIdentifier = number | IoNetworkBoardDesc;
+
 export class IoNetworkBoard {
   public readonly switches: Switch[];
-  public readonly coils: Coil[];
+  public readonly drivers: Driver[];
 
   constructor(
     public readonly details: IoNetworkBoardDesc,
     public readonly networkIndex: number,
     switchIndexOffset: number,
-    coilIndexOffset: number,
+    driverIndexOffset: number,
   ) {
     this.switches = Array.from({ length: details.switchCount }, (_, i) => new Switch(i + switchIndexOffset));
-    this.coils = Array.from({ length: details.coilCount }, (_, i) => new Coil(i + coilIndexOffset));
+    this.drivers = Array.from({ length: details.driverCount }, (_, i) => new Driver(i + driverIndexOffset));
   }
 }
 
 export interface IoNetworkBoardDesc {
   desc: string;
   switchCount: number;
-  coilCount: number;
+  driverCount: number;
 }
 
 export const CabinetIO: IoNetworkBoardDesc = {
   desc: 'Cabinet IO Board',
   switchCount: 24,
-  coilCount: 8,
+  driverCount: 8,
 };
 
 export const IO_3208: IoNetworkBoardDesc = {
   desc: 'I/O 3208',
   switchCount: 32,
-  coilCount: 8,
+  driverCount: 8,
 };
 
 export const IO_1616: IoNetworkBoardDesc = {
   desc: 'I/O 1616',
   switchCount: 16,
-  coilCount: 16,
+  driverCount: 16,
 };
 
 export const IO_0804: IoNetworkBoardDesc = {
   desc: 'I/O 0804',
   switchCount: 8,
-  coilCount: 4,
+  driverCount: 4,
 };

@@ -12,6 +12,7 @@ export { PinActor, PinActorHandler, PinActorListener, PinActorConfigured, handle
 export { NeutronExpansion } from "./hardware/expansion-board";
 export { LED } from "./hardware/led";
 export { CabinetIO, IO_0804, IO_1616, IO_3208, IoNetwork } from "./hardware/io-network";
-export { Coil } from "./hardware/coil";
+export { Driver as Coil } from "./hardware/driver";
 export { Switch } from "./hardware/switch";
 export { Mainboard } from "./hardware/mainboard";
+export { Device, GenericDrivenDevice, SingleCoil } from "./hardware/device";
