@@ -1,5 +1,4 @@
 import { Driver, DriverConfig } from "../driver";
-import { Mainboard } from "../mainboard";
 import { Device } from "./device";
 
 
