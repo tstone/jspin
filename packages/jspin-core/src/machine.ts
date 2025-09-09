@@ -57,8 +57,8 @@ export class Machine<K extends Record<string, OrderedIoNetworkBoardDesc>> {
 
   private runWatchdog() {
     setInterval(() => {
-      this.mainboard.send('WD:1000');
-    }, 950);
+      this.mainboard.send('WD:1250');
+    }, 1000);
   }
 
   private async onData(port: PortType, raw: string) {

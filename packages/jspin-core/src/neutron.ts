@@ -36,13 +36,31 @@ export class Neutron implements Mainboard {
 
     // Wait for board to boot up
     this.send(idCmd(), 'io');
-    const resp = await this.waitForResponse(this.ioPort);
-    console.log('Board ID:', resp.toString().trim());
+    let resp = 'ID:F';
+    let idCounter = 0;
+    while (resp != 'ID:P') {
+      idCounter++;
+      if (idCounter > 10000) {
+        throw new Error('Failed to boot board');
+      }
+
+      resp = await this.waitForResponse(this.ioPort);
+
+      // sleep for 10ms
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    }
+    console.log('Board ID:', resp.trim());
 
     // Tell board it's a Neutron
     this.send(configureHardwareCmd('2000', { switchReporting: 'verbose' }), 'io');
     const resp2 = await this.waitForResponse(this.ioPort);
     console.log('Configuration response:', resp2.toString().trim());
+
+    // Send watch dog as part of initialization so that triggers always happen after this.
+    // Sending TL, etc. before this can cause issues.
+    // The Machine will continue sending watchdogs after this.
+    this.send('WD:5000', 'io');
+    await this.waitForResponse(this.ioPort);
 
     // Setup is done, bind to machine
     this.ioPort.on('data', (data) => {

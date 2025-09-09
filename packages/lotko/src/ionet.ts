@@ -17,13 +17,13 @@ export const LeftSling = ioNet.defineDevice(({ io3208 }) => new SingleCoil({
 export const LeftFlipper = ioNet.defineDevice(({ cabinet, io3208 }) => new DualWoundFlipper({
   main: {
     driver: io3208.drivers[1],
-    fullPowerMs: 12,
+    fullPowerMs: 50,
   },
   hold: {
     driver: io3208.drivers[2],
-    maxInitialOnTimeMs: 20,
+    maxInitialOnTimeMs: 1,
     initialPwmPower: Power.full,
-    secondaryPwmPower: Power.fromPercent(0.66),
+    secondaryPwmPower: Power.full,
   },
   eosSwitch: io3208.switches[30],
   flipperButton: cabinet.switches[15],
