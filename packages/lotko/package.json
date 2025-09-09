@@ -9,7 +9,7 @@
   "scripts": {
     "build": "npm run build:deps && tsc",
     "build:deps": "npm run build --workspace=@jspin/core",
-    "start": "npm run build:deps && ts-node src/index.ts",
+    "start": "npm run build:deps && UV_USE_IO_URING=0 ts-node src/index.ts",
     "test": ""
   },
   "dependencies": {

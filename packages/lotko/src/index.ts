@@ -4,6 +4,7 @@ import { ioNet, LeftFlipper } from "./ionet";
 class AutoStart extends PinActor {
   @handler(stateEntered(MachineState, 'ready'))
   onReady() {
+    console.log('Autostarting game');
     MachineState.state = 'game';
   }
 }

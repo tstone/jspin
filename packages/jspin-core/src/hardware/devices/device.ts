@@ -4,10 +4,10 @@ import { DriverConfig } from "../driver";
 import { Mainboard } from "../mainboard";
 
 export abstract class Device {
-  public abstract configure(): void;
-  public abstract activate(): void;
-  public abstract deactivate(): void;
-  public abstract ballSearch(): void;
+  public abstract configure(): Promise<void>;
+  public abstract activate(): Promise<void>;
+  public abstract deactivate(): Promise<void>;
+  public abstract ballSearch(): Promise<void>;
 
   protected _mainboard?: Mainboard;
 
@@ -23,11 +23,11 @@ export abstract class Device {
     return this._mainboard!;
   }
 
-  protected configureDriver(driverId: number, config: DriverConfig) {
-    this.mainboard.send(configureDriverCmd(driverId, config));
+  protected async configureDriver(driverId: number, config: DriverConfig) {
+    await this.mainboard.send(configureDriverCmd(driverId, config));
   }
 
-  protected triggerDriver(driverId: number, mode: DriverTriggerMode) {
-    this.mainboard.send(triggerDriverCmd(driverId, mode));
+  protected async triggerDriver(driverId: number, mode: DriverTriggerMode) {
+    await this.mainboard.send(triggerDriverCmd(driverId, mode));
   }
 }

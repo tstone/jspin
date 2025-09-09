@@ -6,5 +6,6 @@ export interface Mainboard {
   /** Perform any start-up, hardware registration, data binding, etc. */
   initialize(callback: DataListener): Promise<void>;
   /** Transmit command */
-  send(data: string, port?: PortType): boolean;
+  send(data: string, port?: PortType): Promise<boolean>;
+  sendAndReceive(data: string, port?: PortType): Promise<string>;
 }

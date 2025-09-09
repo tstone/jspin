@@ -7,24 +7,24 @@ export class SingleCoil extends Device {
     super();
   }
 
-  public configure(): void {
-    this.configureDriver(this.config.driver.id, this.config);
+  public configure() {
+    return this.configureDriver(this.config.driver.id, this.config);
   }
 
-  public activate(): void {
-    this.triggerDriver(this.config.driver.id, 'automatic');
+  public activate() {
+    return this.triggerDriver(this.config.driver.id, 'automatic');
   }
 
-  public deactivate(): void {
-    this.triggerDriver(this.config.driver.id, 'disconnected');
+  public deactivate() {
+    return this.triggerDriver(this.config.driver.id, 'disabled');
   }
 
-  public ballSearch(): void {
-    this.fire();
+  public ballSearch() {
+    return this.fire();
   }
 
-  public fire(): void {
-    this.triggerDriver(this.config.driver.id, 'manual');
+  public fire() {
+    return this.triggerDriver(this.config.driver.id, 'manual');
   }
 }
 

@@ -9,7 +9,7 @@ export class DualWoundFlipper extends Device {
     super();
   }
 
-  public configure(): void {
+  public async configure() {
     const mainDriverConfig: PulseCancelDriverConfig = {
       mode: 'pulse+cancel',
       switch: this.config.flipperButton,
@@ -30,26 +30,26 @@ export class DualWoundFlipper extends Device {
       restMs: this.config.hold.restMs,
     };
 
-    this.configureDriver(this.config.main.driver.id, mainDriverConfig);
-    this.configureDriver(this.config.hold.driver.id, holdDriverConfig);
+    await this.configureDriver(this.config.main.driver.id, mainDriverConfig);
+    await this.configureDriver(this.config.hold.driver.id, holdDriverConfig);
   }
 
-  public activate(): void {
-    this.triggerDriver(this.config.main.driver.id, 'automatic');
-    this.triggerDriver(this.config.hold.driver.id, 'automatic');
+  public async activate() {
+    await this.triggerDriver(this.config.main.driver.id, 'automatic');
+    await this.triggerDriver(this.config.hold.driver.id, 'automatic');
   }
 
-  public deactivate(): void {
-    this.triggerDriver(this.config.main.driver.id, 'disconnected');
-    this.triggerDriver(this.config.hold.driver.id, 'disconnected');
+  public async deactivate() {
+    await this.triggerDriver(this.config.main.driver.id, 'disabled');
+    await this.triggerDriver(this.config.hold.driver.id, 'disabled');
   }
 
-  public ballSearch(): void {
+  public async ballSearch() {
     // N/A
   }
 
-  public fire(): void {
-    this.triggerDriver(this.config.main.driver.id, 'manual');
+  public fire() {
+    return this.triggerDriver(this.config.main.driver.id, 'manual');
   }
 }
 

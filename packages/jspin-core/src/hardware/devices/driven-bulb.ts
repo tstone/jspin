@@ -6,27 +6,31 @@ export class DrivenBulb extends Device {
     super();
   }
 
-  public configure(): void {
-    this.configureDriver(this.config.driver.id, {
+  public configure() {
+    return this.configureDriver(this.config.driver.id, {
       mode: 'pulse+hold',
       initialPwmDurationMs: 20,
       initialPwmPower: this.config.powerLevel ?? 1,
     });
   }
 
-  public activate(): void {
-    this.triggerDriver(this.config.driver.id, 'manual');
+  public activate() {
+    return this.turnOn();
   }
 
-  public deactivate(): void {
-    this.triggerDriver(this.config.driver.id, 'disconnected');
+  public deactivate() {
+    return this.turnOff();
   }
 
-  public ballSearch(): void {
+  public async ballSearch() {
   }
 
-  public fire(): void {
-    this.triggerDriver(this.config.driver.id, 'manual');
+  public turnOn() {
+    return this.triggerDriver(this.config.driver.id, 'manual');
+  }
+
+  public turnOff() {
+    return this.triggerDriver(this.config.driver.id, 'disabled');
   }
 }
 

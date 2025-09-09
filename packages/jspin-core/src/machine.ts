@@ -4,11 +4,13 @@ import { Mainboard, PortType } from "./hardware/mainboard";
 import { PinActor } from "./pin-actor";
 import { MachineState, StateChange, StateMachine } from "./state-machine";
 import { PinHardware } from "./hardware/hardware-wrapper";
+import { WatchdogEvent } from "./parser/watchdog-event";
 
 export class Machine<K extends Record<string, OrderedIoNetworkBoardDesc>> {
   private readonly mainboard: Mainboard;
   private readonly ioNet?: IoNetwork<K>;
   private readonly actors: PinActor<any>[];
+  private watchdogInterval?: NodeJS.Timeout;
 
   constructor(config: MachineConfig<K>) {
     this.mainboard = config.mainboard;
@@ -36,10 +38,12 @@ export class Machine<K extends Record<string, OrderedIoNetworkBoardDesc>> {
 
   async run(): Promise<void> {
     await this.mainboard.initialize(this.onData.bind(this));
+    console.log('Mainboard initialized.');
+
     // TODO: verify/error check ionet config with CN:
 
-    this.configureDevices();
-    this.runWatchdog();
+    await this.runWatchdog();
+    await this.configureDevices();
 
     // MAYBE: CP: https://fastpinball.com/fast-serial-protocol/exp/cp/
 
@@ -49,22 +53,38 @@ export class Machine<K extends Record<string, OrderedIoNetworkBoardDesc>> {
     return new Promise(() => { });
   }
 
-  private configureDevices() {
+  private async configureDevices() {
     for (const device of this.ioNet?.devices || []) {
-      device.configure();
+      await device.configure();
     }
   }
 
-  private runWatchdog() {
-    setInterval(() => {
-      this.mainboard.send('WD:1250');
+  private async runWatchdog() {
+    if (this.watchdogInterval) {
+      clearInterval(this.watchdogInterval);
+      this.watchdogInterval = undefined;
+    }
+
+    // Ensure the first watchdog command is working before continuing
+    let wdResp = 'WD:F';
+    while (wdResp == 'WD:F') {
+      wdResp = await this.mainboard.sendAndReceive('WD:04E2\r');
+      console.debug('Watchdog response:', wdResp);
+      await new Promise((resolve) => setTimeout(resolve, 10));
+    }
+
+    this.watchdogInterval = setInterval(() => {
+      this.mainboard.send('WD:04E2\r');
     }, 1000);
   }
 
   private async onData(port: PortType, raw: string) {
-    console.log('Received data:', port, raw);
     const event = FastDataParser.parse(raw, this.ioNet);
-    if (event) {
+    console.log(`${port} → ${raw}`);
+
+    if (event instanceof WatchdogEvent) {
+      // Don't pass on to actors
+    } else if (event) {
       // Emit the event to all actors
       await Promise.all(this.actors.map(actor => actor.bindings.event(event)));
     }

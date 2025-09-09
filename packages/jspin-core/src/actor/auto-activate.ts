@@ -15,6 +15,7 @@ export class AutoActivateDevices extends PinActor {
 
   @handler(stateEntered(MachineState, 'game'))
   onGame() {
+    console.log('Auto activating devices');
     for (const device of this.ioNet.devices) {
       device.activate();
     }
@@ -22,6 +23,7 @@ export class AutoActivateDevices extends PinActor {
 
   @handler(stateExited(MachineState, 'game'))
   onEndGame() {
+    console.log('Auto deactivating devices');
     for (const device of this.ioNet.devices) {
       device.deactivate();
     }

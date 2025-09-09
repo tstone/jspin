@@ -5,6 +5,10 @@ export const ioNet = new IoNetwork({
   io3208: IO_3208(1),
 });
 
+
+
+// --- slings ---
+
 export const LeftSling = ioNet.defineDevice(({ io3208 }) => new SingleCoil({
   driver: io3208.drivers[0],
   switch: io3208.switches[31],
@@ -14,10 +18,23 @@ export const LeftSling = ioNet.defineDevice(({ io3208 }) => new SingleCoil({
   restMs: 80,
 }));
 
+export const RightSling = ioNet.defineDevice(({ io3208 }) => new SingleCoil({
+  driver: io3208.drivers[7],
+  switch: io3208.switches[28],
+  mode: 'pulse',
+  initialPwmDurationMs: 20,
+  initialPwmPower: Power.fromPercent(0.75),
+  restMs: 80,
+}));
+
+
+
+// --- flippers ---
+
 export const LeftFlipper = ioNet.defineDevice(({ cabinet, io3208 }) => new DualWoundFlipper({
   main: {
     driver: io3208.drivers[1],
-    fullPowerMs: 50,
+    fullPowerMs: 19,
   },
   hold: {
     driver: io3208.drivers[2],
@@ -29,15 +46,25 @@ export const LeftFlipper = ioNet.defineDevice(({ cabinet, io3208 }) => new DualW
   flipperButton: cabinet.switches[15],
 }));
 
+export const RightFlipper = ioNet.defineDevice(({ cabinet, io3208 }) => new DualWoundFlipper({
+  main: {
+    driver: io3208.drivers[5],
+    fullPowerMs: 23,
+  },
+  hold: {
+    driver: io3208.drivers[6],
+    maxInitialOnTimeMs: 1,
+    initialPwmPower: Power.full,
+    secondaryPwmPower: Power.full,
+  },
+  eosSwitch: io3208.switches[29],
+  flipperButton: cabinet.switches[22],
+}));
+
+
+
+// --- other ---
+
 export const StartButtonBulb = ioNet.defineDevice(({ cabinet }) => new DrivenBulb({
   driver: cabinet.drivers[2],
 }));
-
-/*
-L2 - low voltage driver for start button
-15/14 (primary/sec) left flipper btn
-13 - start btn
-
-22/23 (prim/sec) right flipper btn
-21 tilt bob
-*/
