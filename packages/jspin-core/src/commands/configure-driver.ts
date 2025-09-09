@@ -1,4 +1,5 @@
 import { DriverConfig, PulseCancelDriverConfig, PulseDriverConfig, PulseHoldCancelDriverConfig, PulseHoldDriverConfig } from "../hardware/driver";
+import { toHex } from "./hex";
 
 // https://fastpinball.com/fast-serial-protocol/net/dl/
 export function configureDriverCmd(driverId: number, config: DriverConfig) {
@@ -25,24 +26,24 @@ export function configureDriverCmd(driverId: number, config: DriverConfig) {
 
 function disabledCmd(driverId: number): DlCommand {
   return dl({
-    driverId: driverId.toString(16),
+    driverId: toHex(driverId),
   });
 }
 
 function pulseCmd(driverId: number, config: PulseDriverConfig): DlCommand {
   return dl({
-    driverId: driverId.toString(16),
+    driverId: toHex(driverId),
     trigger: trigger({
       enabled: true,
       invertSwitch1: config.invertSwitch,
     }),
-    switchId: config.switch?.id.toString(16),
+    switchId: toHex(config.switch?.id),
     mode: "10",
-    param1: config.initialPwmDurationMs.toString(16),
-    param2: powerToHex(config.initialPwmPower),
-    param3: config.secondaryPwmDurationMs?.toString(16),
-    param4: powerToHex(config.secondaryPwmPower),
-    param5: config.restMs?.toString(16),
+    param1: toHex(config.initialPwmDurationMs),
+    param2: toHex(config.initialPwmPower),
+    param3: toHex(config.secondaryPwmDurationMs),
+    param4: toHex(config.secondaryPwmPower),
+    param5: toHex(config.restMs),
   });
 }
 
@@ -53,12 +54,12 @@ function pulseHoldCmd(driverId: number, config: PulseHoldDriverConfig): DlComman
       enabled: true,
       invertSwitch1: config.invertSwitch,
     }),
-    switchId: config.switch?.id.toString(16),
+    switchId: toHex(config.switch?.id),
     mode: "18",
-    param1: config.initialPwmDurationMs.toString(16),
-    param2: powerToHex(config.initialPwmPower),
-    param3: powerToHex(config.secondaryPwmPower),
-    param4: config.restMs?.toString(16),
+    param1: toHex(config.initialPwmDurationMs),
+    param2: toHex(config.initialPwmPower),
+    param3: toHex(config.secondaryPwmPower),
+    param4: toHex(config.restMs),
   });
 }
 
@@ -72,11 +73,11 @@ function pulseHoldCancelCmd(driverId: number, config: PulseHoldCancelDriverConfi
     }),
     switchId: config.switch?.id.toString(16),
     mode: "20",
-    param1: config.offSwitch.id.toString(16),
-    param2: config.maxInitialOnTimeMs.toString(16),
-    param3: powerToHex(config.initialPwmPower),
-    param4: powerToHex(config.secondaryPwmPower),
-    param5: config.restMs?.toString(16),
+    param1: toHex(config.offSwitch.id),
+    param2: toHex(config.maxInitialOnTimeMs),
+    param3: toHex(config.initialPwmPower),
+    param4: toHex(config.secondaryPwmPower),
+    param5: toHex(config.restMs),
   });
 }
 
@@ -90,19 +91,12 @@ function pulseCancelCmd(driverId: number, config: PulseCancelDriverConfig): DlCo
     }),
     switchId: config.switch?.id.toString(16),
     mode: "75",
-    param1: config.offSwitch.id.toString(16),
-    param2: config.initialPwmDurationMs.toString(16),
-    param3: powerToHex(config.secondaryPwmDurationTenthSeconds),
-    param4: powerToHex(config.secondaryPwmPower),
-    param5: config.restMs?.toString(16),
+    param1: toHex(config.offSwitch.id),
+    param2: toHex(config.initialPwmDurationMs),
+    param3: toHex(config.secondaryPwmDurationTenthSeconds),
+    param4: toHex(config.secondaryPwmPower),
+    param5: toHex(config.restMs),
   });
-}
-
-export function powerToHex(power?: number): string {
-  if (power === undefined) {
-    return '0';
-  }
-  return Math.round(power).toString(16);
 }
 
 function dl(values: Partial<DlCommand>): DlCommand {

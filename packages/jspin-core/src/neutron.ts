@@ -44,15 +44,6 @@ export class Neutron implements Mainboard {
       }
 
       resp = await this.sendAndReceive(idCmd(), 'io');
-
-      // clear watchdog if it happens on boot
-      // this typically comes up when restarting the software multiple times during development
-      if (resp.trim().toLowerCase() == 'WD:F') {
-        await this.send('WD:0', 'io');
-      }
-      // console.log('Intermediate boot resp:', resp.trim());
-
-      // sleep for 10ms
       await new Promise((resolve) => setTimeout(resolve, 10));
     }
     console.log('Board ID:', resp.trim());

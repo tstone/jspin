@@ -1,4 +1,4 @@
-import { Driver, DriverConfig } from "../driver";
+import { Driver } from "../driver";
 import { Device } from "./device";
 
 export class DrivenBulb extends Device {

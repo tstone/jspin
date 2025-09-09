@@ -1,32 +1,17 @@
+import { SwitchConfig } from "../commands/configure-switch";
 
 export class Switch {
   constructor(
     public readonly id: number,
-    public roles: Set<string> = new Set<string>(),
   ) { }
 
-  addRole(role: string) {
-    this.roles.add(role);
-    return this;
+  static from(id: number | Switch | SwitchConfig): Switch {
+    if (id instanceof Switch) {
+      return id;
+    } else if (typeof id === 'number') {
+      return new Switch(id);
+    } else {
+      return this.from(id.switchId);
+    }
   }
-
-  removeRole(role: string) {
-    this.roles.delete(role);
-    return this;
-  }
-
-  hasRole(role: string): boolean {
-    return this.roles.has(role);
-  }
-}
-
-export enum SwitchRoles {
-  Coin = 'coin',
-  Start = 'start',
-  Tilt = 'tilt',
-  LeftInlane = 'left-inlane',
-  RightInlane = 'right-inlane',
-  LeftSlingshot = 'left-slingshot',
-  RightSlingshot = 'right-slingshot',
-  PlungeLane = 'plunge-lane',
 }

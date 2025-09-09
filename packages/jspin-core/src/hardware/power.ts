@@ -4,7 +4,7 @@ export class Power {
   /**
    * @param percent value between 0.0-1.0
    */
-  static fromPercent(percent: number) {
+  static percent(percent: number) {
     return Math.round(percent * 255);
   }
 

@@ -1,4 +1,4 @@
-import { CabinetIO, DrivenBulb, DualWoundFlipper, IO_3208, IoNetwork, Power, SingleCoil } from "@jspin/core";
+import { CabinetIO, DrivenBulb, DualWoundFlipper, IO_3208, IoNetwork, Power, SingleCoil, Slingshot } from "@jspin/core";
 
 export const ioNet = new IoNetwork({
   cabinet: CabinetIO(0),
@@ -6,27 +6,17 @@ export const ioNet = new IoNetwork({
 });
 
 
-
 // --- slings ---
 
-export const LeftSling = ioNet.defineDevice(({ io3208 }) => new SingleCoil({
+export const LeftSling = ioNet.defineDevice(({ io3208 }) => new Slingshot({
   driver: io3208.drivers[0],
   switch: io3208.switches[31],
-  mode: 'pulse',
-  initialPwmDurationMs: 20,
-  initialPwmPower: Power.fromPercent(0.75),
-  restMs: 80,
 }));
 
-export const RightSling = ioNet.defineDevice(({ io3208 }) => new SingleCoil({
+export const RightSling = ioNet.defineDevice(({ io3208 }) => new Slingshot({
   driver: io3208.drivers[7],
   switch: io3208.switches[28],
-  mode: 'pulse',
-  initialPwmDurationMs: 20,
-  initialPwmPower: Power.fromPercent(0.75),
-  restMs: 80,
 }));
-
 
 
 // --- flippers ---
@@ -34,7 +24,9 @@ export const RightSling = ioNet.defineDevice(({ io3208 }) => new SingleCoil({
 export const LeftFlipper = ioNet.defineDevice(({ cabinet, io3208 }) => new DualWoundFlipper({
   main: {
     driver: io3208.drivers[1],
-    fullPowerMs: 19,
+    fullPowerMs: 14,
+    secondaryPwmPower: Power.percent(0.66),
+    secondaryPwmDurationTenthSeconds: 5,
   },
   hold: {
     driver: io3208.drivers[2],
@@ -49,7 +41,9 @@ export const LeftFlipper = ioNet.defineDevice(({ cabinet, io3208 }) => new DualW
 export const RightFlipper = ioNet.defineDevice(({ cabinet, io3208 }) => new DualWoundFlipper({
   main: {
     driver: io3208.drivers[5],
-    fullPowerMs: 23,
+    fullPowerMs: 14,
+    secondaryPwmPower: Power.threeQuarters,
+    secondaryPwmDurationTenthSeconds: 5,
   },
   hold: {
     driver: io3208.drivers[6],
@@ -60,7 +54,6 @@ export const RightFlipper = ioNet.defineDevice(({ cabinet, io3208 }) => new Dual
   eosSwitch: io3208.switches[29],
   flipperButton: cabinet.switches[22],
 }));
-
 
 
 // --- other ---

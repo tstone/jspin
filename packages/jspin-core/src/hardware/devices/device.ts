@@ -1,4 +1,5 @@
 import { configureDriverCmd } from "../../commands/configure-driver";
+import { configureSwitchCmd, SwitchConfig } from "../../commands/configure-switch";
 import { DriverTriggerMode, triggerDriverCmd } from "../../commands/trigger-driver";
 import { DriverConfig } from "../driver";
 import { Mainboard } from "../mainboard";
@@ -25,6 +26,10 @@ export abstract class Device {
 
   protected async configureDriver(driverId: number, config: DriverConfig) {
     await this.mainboard.send(configureDriverCmd(driverId, config));
+  }
+
+  protected async configureSwitch(config: SwitchConfig) {
+    await this.mainboard.send(configureSwitchCmd(config));
   }
 
   protected async triggerDriver(driverId: number, mode: DriverTriggerMode) {

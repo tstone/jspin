@@ -1,5 +1,5 @@
+import { SwitchConfig } from "../../commands/configure-switch";
 import { Driver, PulseCancelDriverConfig, PulseHoldCancelDriverConfig } from "../driver";
-import { Mainboard } from "../mainboard";
 import { Switch } from "../switch";
 import { Device } from "./device";
 
@@ -12,8 +12,8 @@ export class DualWoundFlipper extends Device {
   public async configure() {
     const mainDriverConfig: PulseCancelDriverConfig = {
       mode: 'pulse+cancel',
-      switch: this.config.flipperButton,
-      offSwitch: this.config.eosSwitch,
+      switch: Switch.from(this.config.flipperButton),
+      offSwitch: Switch.from(this.config.eosSwitch),
       initialPwmDurationMs: this.config.main.fullPowerMs,
       secondaryPwmPower: this.config.main.secondaryPwmPower,
       secondaryPwmDurationTenthSeconds: this.config.main.secondaryPwmDurationTenthSeconds,
@@ -21,17 +21,31 @@ export class DualWoundFlipper extends Device {
     };
     const holdDriverConfig: PulseHoldCancelDriverConfig = {
       mode: 'pulse+hold+cancel',
-      switch: this.config.eosSwitch,
-      offSwitch: this.config.flipperButton,
+      switch: Switch.from(this.config.eosSwitch),
+      offSwitch: Switch.from(this.config.flipperButton),
       invertOffSwitch: true,
       maxInitialOnTimeMs: this.config.hold.maxInitialOnTimeMs,
       initialPwmPower: this.config.hold.initialPwmPower,
       secondaryPwmPower: this.config.hold.secondaryPwmPower,
       restMs: this.config.hold.restMs,
     };
+    const flipperSwitchConfig: SwitchConfig = this.config.flipperButton instanceof Switch ? {
+      switchId: this.config.flipperButton.id,
+      debounceCloseMs: 2,
+      debounceOpenMs: 5,
+      inverted: false,
+    } : this.config.flipperButton;
+    const eosSwitchConfig: SwitchConfig = this.config.eosSwitch instanceof Switch ? {
+      switchId: this.config.eosSwitch.id,
+      debounceCloseMs: 2,
+      debounceOpenMs: 5,
+      inverted: false,
+    } : this.config.eosSwitch;
 
     await this.configureDriver(this.config.main.driver.id, mainDriverConfig);
     await this.configureDriver(this.config.hold.driver.id, holdDriverConfig);
+    await this.configureSwitch(flipperSwitchConfig);
+    await this.configureSwitch(eosSwitchConfig);
   }
 
   public async activate() {
@@ -54,6 +68,15 @@ export class DualWoundFlipper extends Device {
 }
 
 export type DualWoundFlipperConfig = {
+  // strategy: 'eos' | 'timed',
+  // TODO: timed mode uses mode 18+50 for hold driver where delay is fullPowerMs + secondaryPwmDuration
+  // TODO: just set initial power MS to 0 and use secondaryPwmDuration for primary driver?
+
+  // repulse: boolean
+  // TODO: repulse means a timer is set and if the EOS switch is not hit in that time, the main driver is manually triggered again
+
+  // TODO: investigate switch debounce settings for flipper + EOS switches
+
   main: {
     driver: Driver,
     fullPowerMs: number,
@@ -69,6 +92,6 @@ export type DualWoundFlipperConfig = {
     secondaryPwmPower?: number;
     restMs?: number;
   },
-  flipperButton: Switch,
-  eosSwitch: Switch,
+  flipperButton: SwitchConfig | Switch,
+  eosSwitch: SwitchConfig | Switch,
 }

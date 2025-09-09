@@ -32,5 +32,6 @@ export { Switch } from "./hardware/switch";
 export { Mainboard } from "./hardware/mainboard";
 export { Device } from "./hardware/devices/device";
 export { SingleCoil } from "./hardware/devices/single-coil";
+export { Slingshot } from "./hardware/devices/slingshot";
 export { DualWoundFlipper } from "./hardware/devices/dual-wound-flipper";
 export { DrivenBulb } from "./hardware/devices/driven-bulb";

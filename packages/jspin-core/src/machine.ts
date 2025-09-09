@@ -5,6 +5,8 @@ import { PinActor } from "./pin-actor";
 import { MachineState, StateChange, StateMachine } from "./state-machine";
 import { PinHardware } from "./hardware/hardware-wrapper";
 import { WatchdogEvent } from "./parser/watchdog-event";
+import { toHex } from "./commands/hex";
+import { watchdogSetCmd } from "./commands/watchdog";
 
 export class Machine<K extends Record<string, OrderedIoNetworkBoardDesc>> {
   private readonly mainboard: Mainboard;
@@ -68,13 +70,13 @@ export class Machine<K extends Record<string, OrderedIoNetworkBoardDesc>> {
     // Ensure the first watchdog command is working before continuing
     let wdResp = 'WD:F';
     while (wdResp == 'WD:F') {
-      wdResp = await this.mainboard.sendAndReceive('WD:04E2\r');
+      wdResp = await this.mainboard.sendAndReceive(watchdogSetCmd(1250));
       console.debug('Watchdog response:', wdResp);
       await new Promise((resolve) => setTimeout(resolve, 10));
     }
 
     this.watchdogInterval = setInterval(() => {
-      this.mainboard.send('WD:04E2\r');
+      this.mainboard.send(watchdogSetCmd(1250));
     }, 1000);
   }
 
