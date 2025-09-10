@@ -1,8 +1,10 @@
+import createLogger from 'logging';
 import { PinHardware } from "./hardware/hardware-wrapper";
 import { ActorRule } from "./actor-rules";
 
 export abstract class PinActor<Config extends Record<string, any> = {}> {
   protected config: Config;
+  protected readonly logger = createLogger(this.constructor.name);
 
   private _hardware?: PinHardware;
   private listener?: PinActorListener;

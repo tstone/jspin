@@ -60,7 +60,7 @@ describe('configure-driver', () => {
         // param3: 50ms -> '32' in hex
         // param4: 128 power -> '80' in hex
         // param5: 200ms -> 'c8' in hex
-        expect(result).toBe('DL:a,81,5,10,64,ff,32,80,c8\r');
+        expect(result).toBe('DL:0a,81,05,10,64,ff,32,80,c8\r');
       });
     });
 
@@ -77,7 +77,7 @@ describe('configure-driver', () => {
         };
 
         const result = configureDriverCmd(10, pulseConfig);
-        expect(result).toBe('DL:a,91,5,18,64,ff,80,c8,0\r');
+        expect(result).toBe('DL:0a,91,05,18,64,ff,80,c8,00\r');
       });
     });
   });

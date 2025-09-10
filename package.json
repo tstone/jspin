@@ -18,7 +18,7 @@
     "start:actor": "npm run start:actor --workspace=@jspin/examples",
     "start:typed": "npm run start:typed --workspace=@jspin/examples",
     "dev:examples": "npm run dev --workspace=@jspin/examples",
-    "dev:basic": "npm run dev:basic --workspace=@jspin/examples", 
+    "dev:basic": "npm run dev:basic --workspace=@jspin/examples",
     "dev:switch": "npm run dev:switch --workspace=@jspin/examples",
     "dev:led": "npm run dev:led --workspace=@jspin/examples",
     "dev:actor": "npm run dev:actor --workspace=@jspin/examples",
@@ -34,5 +34,8 @@
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "logging": "^4.2.0"
   }
 }

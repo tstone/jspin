@@ -1,3 +1,4 @@
+import createLogger from 'logging';
 import { FastDataParser } from "./parser/data-parser";
 import { IoNetwork, OrderedIoNetworkBoardDesc } from "./hardware/io-network";
 import { Mainboard, PortType } from "./hardware/mainboard";
@@ -13,6 +14,7 @@ export class Machine<K extends Record<string, OrderedIoNetworkBoardDesc>> {
   private readonly ioNet?: IoNetwork<K>;
   private readonly actors: PinActor<any>[];
   private watchdogInterval?: NodeJS.Timeout;
+  private readonly logger = createLogger('machine');
 
   constructor(config: MachineConfig<K>) {
     this.mainboard = config.mainboard;
@@ -40,7 +42,7 @@ export class Machine<K extends Record<string, OrderedIoNetworkBoardDesc>> {
 
   async run(): Promise<void> {
     await this.mainboard.initialize(this.onData.bind(this));
-    console.log('Mainboard initialized.');
+    this.logger.info('Mainboard initialized.');
 
     // TODO: verify/error check ionet config with CN:
 
@@ -71,7 +73,6 @@ export class Machine<K extends Record<string, OrderedIoNetworkBoardDesc>> {
     let wdResp = 'WD:F';
     while (wdResp == 'WD:F') {
       wdResp = await this.mainboard.sendAndReceive(watchdogSetCmd(1250));
-      console.debug('Watchdog response:', wdResp);
       await new Promise((resolve) => setTimeout(resolve, 10));
     }
 
@@ -82,7 +83,7 @@ export class Machine<K extends Record<string, OrderedIoNetworkBoardDesc>> {
 
   private async onData(port: PortType, raw: string) {
     const event = FastDataParser.parse(raw, this.ioNet);
-    console.log(`${port} → ${raw}`);
+    this.logger.debug(`${port} → ${raw}`);
 
     if (event instanceof WatchdogEvent) {
       // Don't pass on to actors
@@ -93,11 +94,11 @@ export class Machine<K extends Record<string, OrderedIoNetworkBoardDesc>> {
   }
 
   private async onActorEvent(actor: PinActor<any>, event: Record<string, any>) {
-    console.log('Actor event:', actor.constructor.name, event);
+    this.logger.debug('Actor event: %s %o', actor.constructor.name, event);
     // Echo event to all other actors
     await Promise.all(this.actors.map(a => {
-      if (a === actor) return; // Skip self
-      a.bindings.event(event);
+      if (a === actor) return Promise.resolve(); // Skip self
+      return a.bindings.event(event);
     }));
   }
 
