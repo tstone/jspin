@@ -52,7 +52,10 @@ export const RightFlipper = ioNet.defineDevice(({ cabinet, io3208 }) => new Dual
     secondaryPwmPower: Power.full,
   },
   eosSwitch: io3208.switches[29],
-  flipperButton: cabinet.switches[22],
+  flipperButton: {
+    switchId: cabinet.switches[22],
+    debounceOpenMs: 2
+  }
 }));
 
 
