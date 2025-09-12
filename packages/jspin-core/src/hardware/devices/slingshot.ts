@@ -10,7 +10,7 @@ export class Slingshot extends SingleCoil {
       driver: slingConfig.driver,
       switch: slingConfig.switch,
       initialPwmDurationMs: slingConfig.durationMs ?? 20,
-      initialPwmPower: slingConfig.power ?? Power.threeQuarters,
+      initialPwmPower: slingConfig.power ?? Power.full,
       restMs: slingConfig.restMs ?? 80,
     });
   }

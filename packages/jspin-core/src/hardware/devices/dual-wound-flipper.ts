@@ -17,7 +17,7 @@ export class DualWoundFlipper extends Device {
       initialPwmDurationMs: this.config.main.fullPowerMs,
       secondaryPwmPower: this.config.main.secondaryPwmPower,
       secondaryPwmDurationTenthSeconds: this.config.main.secondaryPwmDurationTenthSeconds,
-      restMs: this.config.main.restMs,
+      restMs: this.config.main.restMs ?? 1,
     };
     const holdDriverConfig: PulseHoldCancelDriverConfig = {
       mode: 'pulse+hold+cancel',
@@ -32,20 +32,19 @@ export class DualWoundFlipper extends Device {
     const flipperSwitchConfig: SwitchConfig = this.config.flipperButton instanceof Switch ? {
       switchId: this.config.flipperButton.id,
       debounceCloseMs: 2,
-      debounceOpenMs: 5,
+      debounceOpenMs: 4,
       inverted: false,
     } : this.config.flipperButton;
     const eosSwitchConfig: SwitchConfig = this.config.eosSwitch instanceof Switch ? {
       switchId: this.config.eosSwitch.id,
-      debounceCloseMs: 2,
-      debounceOpenMs: 5,
-      inverted: false,
+      debounceOpenMs: 8,
+      inverted: true,
     } : this.config.eosSwitch;
 
-    await this.configureDriver(this.config.main.driver.id, mainDriverConfig);
-    await this.configureDriver(this.config.hold.driver.id, holdDriverConfig);
     await this.configureSwitch(flipperSwitchConfig);
     await this.configureSwitch(eosSwitchConfig);
+    await this.configureDriver(this.config.main.driver.id, mainDriverConfig);
+    await this.configureDriver(this.config.hold.driver.id, holdDriverConfig);
   }
 
   public async activate() {

@@ -49,6 +49,8 @@ export class Machine<K extends Record<string, OrderedIoNetworkBoardDesc>> {
     await this.runWatchdog();
     await this.configureDevices();
 
+    await this.mainboard.send('CS:\r');
+
     // MAYBE: CP: https://fastpinball.com/fast-serial-protocol/exp/cp/
 
     MachineState.state = 'ready';
@@ -83,7 +85,10 @@ export class Machine<K extends Record<string, OrderedIoNetworkBoardDesc>> {
 
   private async onData(port: PortType, raw: string) {
     const event = FastDataParser.parse(raw, this.ioNet);
-    this.logger.debug(`${port} → ${raw}`);
+
+    if (!raw.startsWith('WD:')) {
+      this.logger.info(`${port} → ${raw}`);
+    }
 
     if (event instanceof WatchdogEvent) {
       // Don't pass on to actors
@@ -94,7 +99,7 @@ export class Machine<K extends Record<string, OrderedIoNetworkBoardDesc>> {
   }
 
   private async onActorEvent(actor: PinActor<any>, event: Record<string, any>) {
-    this.logger.debug('Actor event: %s %o', actor.constructor.name, event);
+    this.logger.info('Actor event: %s %o', actor.constructor.name, event);
     // Echo event to all other actors
     await Promise.all(this.actors.map(a => {
       if (a === actor) return Promise.resolve(); // Skip self

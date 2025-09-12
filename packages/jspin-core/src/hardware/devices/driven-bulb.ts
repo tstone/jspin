@@ -1,4 +1,5 @@
 import { Driver } from "../driver";
+import { Power } from "../power";
 import { Device } from "./device";
 
 export class DrivenBulb extends Device {
@@ -9,8 +10,9 @@ export class DrivenBulb extends Device {
   public configure() {
     return this.configureDriver(this.config.driver.id, {
       mode: 'pulse+hold',
-      initialPwmDurationMs: 20,
-      initialPwmPower: this.config.powerLevel ?? 1,
+      initialPwmDurationMs: 0,
+      secondaryPwmPower: this.config.powerLevel ?? Power.full,
+      initialPwmPower: this.config.powerLevel ?? Power.full,
     });
   }
 

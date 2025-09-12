@@ -48,11 +48,11 @@ export class Neutron implements Mainboard {
       resp = await this.sendAndReceive(idCmd(), 'io');
       await new Promise((resolve) => setTimeout(resolve, 10));
     }
-    this.logger.debug('Board ID: %s', resp.trim());
+    this.logger.info('Board ID: %s', resp.trim());
 
     // Tell board it's a Neutron
     const resp2 = await this.sendAndReceive(configureHardwareCmd('2000', { switchReporting: 'verbose' }), 'io');
-    this.logger.debug('Configuration response: %s', resp2.toString().trim());
+    this.logger.info('Configuration response: %s', resp2.toString().trim());
 
     // Setup is done, bind to machine
     this.listen(this.ioPort, 'io', dataListener);
@@ -61,7 +61,7 @@ export class Neutron implements Mainboard {
       await this.openPort(this.expPort);
       this.logger.info('EXP Port opened: %s', this.expPort.path);
       const resp3 = await this.sendAndReceive(idCmd(NeutronExpansion), 'exp');
-      this.logger.debug('EXP configuration response: %s', resp3.toString().trim());
+      this.logger.info('EXP configuration response: %s', resp3.toString().trim());
       this.listen(this.expPort, 'exp', dataListener);
     }
   }
@@ -98,7 +98,9 @@ export class Neutron implements Mainboard {
   }
 
   send(data: string, port?: PortType): Promise<boolean> {
-    this.logger.debug(`${port || 'io'} ← ${data}`);
+    if (!data.startsWith('WD:')) {
+      this.logger.info(`${port || 'io'} ← ${data}`);
+    }
     const outboundPort = port === 'exp' ? this.expPort : this.ioPort;
 
     if (outboundPort) {

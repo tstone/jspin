@@ -1,5 +1,7 @@
-import { allOf, handler, Machine, MachineState, Neutron, PinActor, stateExited, stateEntered, AutoActivateDevices } from "@jspin/core";
-import { ioNet, LeftFlipper } from "./ionet";
+import logging from 'logging';
+import { handler, Machine, MachineState, Neutron, PinActor, stateExited, stateEntered, AutoActivateDevices } from "@jspin/core";
+import { ioNet } from "./ionet";
+
 
 class AutoStart extends PinActor {
   @handler(stateEntered(MachineState, 'ready'))

@@ -25,8 +25,8 @@ export const RightSling = ioNet.defineDevice(({ io3208 }) => new Slingshot({
 export const LeftFlipper = ioNet.defineDevice(({ cabinet, io3208 }) => new DualWoundFlipper({
   main: {
     driver: io3208.drivers[1],
-    fullPowerMs: 14,
-    secondaryPwmPower: Power.percent(0.66),
+    fullPowerMs: 15,
+    secondaryPwmPower: Power.percent(0.85),
     secondaryPwmDurationTenthSeconds: 5,
   },
   hold: {
@@ -36,27 +36,28 @@ export const LeftFlipper = ioNet.defineDevice(({ cabinet, io3208 }) => new DualW
     secondaryPwmPower: Power.full,
   },
   eosSwitch: io3208.switches[30],
-  flipperButton: cabinet.switches[15],
+  flipperButton: {
+    switchId: cabinet.switches[15],
+    debounceOpenMs: 1,
+    debounceCloseMs: 1,
+  }
 }));
 
 export const RightFlipper = ioNet.defineDevice(({ cabinet, io3208 }) => new DualWoundFlipper({
   main: {
     driver: io3208.drivers[5],
-    fullPowerMs: 14,
+    fullPowerMs: 16,
     secondaryPwmPower: Power.threeQuarters,
     secondaryPwmDurationTenthSeconds: 5,
   },
   hold: {
     driver: io3208.drivers[6],
-    maxInitialOnTimeMs: 1,
+    maxInitialOnTimeMs: 0,
     initialPwmPower: Power.full,
     secondaryPwmPower: Power.full,
   },
   eosSwitch: io3208.switches[29],
-  flipperButton: {
-    switchId: cabinet.switches[22],
-    debounceOpenMs: 2
-  }
+  flipperButton: cabinet.switches[22],
 }));
 
 export const UpperLeftFlipper = ioNet.defineDevice(({ io1616, cabinet }) => new DualWoundFlipper({
@@ -72,11 +73,8 @@ export const UpperLeftFlipper = ioNet.defineDevice(({ io1616, cabinet }) => new 
     initialPwmPower: Power.full,
     secondaryPwmPower: Power.full,
   },
-  eosSwitch: io1616.switches[1],
-  flipperButton: {
-    switchId: cabinet.switches[14],
-    debounceOpenMs: 2
-  }
+  eosSwitch: io1616.switches[8],
+  flipperButton: cabinet.switches[14],
 }));
 
 
