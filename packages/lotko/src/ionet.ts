@@ -1,8 +1,9 @@
-import { CabinetIO, DrivenBulb, DualWoundFlipper, IO_3208, IoNetwork, Power, SingleCoil, Slingshot } from "@jspin/core";
+import { CabinetIO, DrivenBulb, DualWoundFlipper, IO_1616, IO_3208, IoNetwork, Power, SingleCoil, Slingshot } from "@jspin/core";
 
 export const ioNet = new IoNetwork({
   cabinet: CabinetIO(0),
   io3208: IO_3208(1),
+  io1616: IO_1616(2),
 });
 
 
@@ -54,6 +55,26 @@ export const RightFlipper = ioNet.defineDevice(({ cabinet, io3208 }) => new Dual
   eosSwitch: io3208.switches[29],
   flipperButton: {
     switchId: cabinet.switches[22],
+    debounceOpenMs: 2
+  }
+}));
+
+export const UpperLeftFlipper = ioNet.defineDevice(({ io1616, cabinet }) => new DualWoundFlipper({
+  main: {
+    driver: io1616.drivers[0],
+    fullPowerMs: 14,
+    secondaryPwmPower: Power.threeQuarters,
+    secondaryPwmDurationTenthSeconds: 5,
+  },
+  hold: {
+    driver: io1616.drivers[1],
+    maxInitialOnTimeMs: 1,
+    initialPwmPower: Power.full,
+    secondaryPwmPower: Power.full,
+  },
+  eosSwitch: io1616.switches[1],
+  flipperButton: {
+    switchId: cabinet.switches[14],
     debounceOpenMs: 2
   }
 }));
