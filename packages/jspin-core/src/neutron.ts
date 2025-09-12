@@ -1,3 +1,4 @@
+import createLogger from 'logging';
 import { SerialPort } from "serialport";
 import { idCmd } from "./commands/id";
 import { configureHardwareCmd } from "./commands/configure-hardware";
@@ -7,6 +8,7 @@ import { NeutronExpansion } from "./hardware/expansion-board";
 export class Neutron implements Mainboard {
   private readonly ioPort: SerialPort;
   private readonly expPort?: SerialPort;
+  private readonly logger = createLogger('boot');
 
   constructor(options: NeutronOptions) {
     this.ioPort = new SerialPort({
@@ -32,7 +34,7 @@ export class Neutron implements Mainboard {
     // Reference: https://fastpinball.com/fast-serial-protocol/net/initial_connection/
 
     await this.openPort(this.ioPort);
-    console.log('IO Port opened:', this.ioPort.path);
+    this.logger.info('IO Port opened: %s', this.ioPort.path);
 
     // Wait for board to boot up
     let resp = 'ID:F';
@@ -46,20 +48,20 @@ export class Neutron implements Mainboard {
       resp = await this.sendAndReceive(idCmd(), 'io');
       await new Promise((resolve) => setTimeout(resolve, 10));
     }
-    console.log('Board ID:', resp.trim());
+    this.logger.debug('Board ID: %s', resp.trim());
 
     // Tell board it's a Neutron
     const resp2 = await this.sendAndReceive(configureHardwareCmd('2000', { switchReporting: 'verbose' }), 'io');
-    console.log('Configuration response:', resp2.toString().trim());
+    this.logger.debug('Configuration response: %s', resp2.toString().trim());
 
     // Setup is done, bind to machine
     this.listen(this.ioPort, 'io', dataListener);
 
     if (this.expPort) {
       await this.openPort(this.expPort);
-      console.log('EXP Port opened:', this.expPort.path);
+      this.logger.info('EXP Port opened: %s', this.expPort.path);
       const resp3 = await this.sendAndReceive(idCmd(NeutronExpansion), 'exp');
-      console.log('EXP configuration response:', resp3.toString().trim());
+      this.logger.debug('EXP configuration response: %s', resp3.toString().trim());
       this.listen(this.expPort, 'exp', dataListener);
     }
   }
@@ -96,7 +98,7 @@ export class Neutron implements Mainboard {
   }
 
   send(data: string, port?: PortType): Promise<boolean> {
-    console.log(`${port || 'io'} ← ${data}`);
+    this.logger.debug(`${port || 'io'} ← ${data}`);
     const outboundPort = port === 'exp' ? this.expPort : this.ioPort;
 
     if (outboundPort) {
