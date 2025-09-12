@@ -1,4 +1,4 @@
-import { always, stateEntered, stateIs } from "../actor-rules"
+import { always, stateEntered } from "../actor-rules"
 import { PinActor, handler } from '../pin-actor';
 import { MachineState, StateChange } from "../state-machine";
 

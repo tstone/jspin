@@ -49,7 +49,7 @@ function pulseCmd(driverId: number, config: PulseDriverConfig): DlCommand {
 
 function pulseHoldCmd(driverId: number, config: PulseHoldDriverConfig): DlCommand {
   return dl({
-    driverId: driverId.toString(16),
+    driverId: toHex(driverId),
     trigger: trigger({
       enabled: true,
       invertSwitch1: config.invertSwitch,
@@ -65,13 +65,13 @@ function pulseHoldCmd(driverId: number, config: PulseHoldDriverConfig): DlComman
 
 function pulseHoldCancelCmd(driverId: number, config: PulseHoldCancelDriverConfig): DlCommand {
   return dl({
-    driverId: driverId.toString(16),
+    driverId: toHex(driverId),
     trigger: trigger({
       enabled: true,
       invertSwitch1: config.invertSwitch,
       invertSwitch2: config.invertOffSwitch,
     }),
-    switchId: config.switch?.id.toString(16),
+    switchId: toHex(config.switch?.id),
     mode: "20",
     param1: toHex(config.offSwitch.id),
     param2: toHex(config.maxInitialOnTimeMs),
@@ -83,13 +83,13 @@ function pulseHoldCancelCmd(driverId: number, config: PulseHoldCancelDriverConfi
 
 function pulseCancelCmd(driverId: number, config: PulseCancelDriverConfig): DlCommand {
   return dl({
-    driverId: driverId.toString(16),
+    driverId: toHex(driverId),
     trigger: trigger({
       enabled: true,
       invertSwitch1: config.invertSwitch,
       invertSwitch2: config.invertOffSwitch,
     }),
-    switchId: config.switch?.id.toString(16),
+    switchId: toHex(config.switch?.id),
     mode: "75",
     param1: toHex(config.offSwitch.id),
     param2: toHex(config.initialPwmDurationMs),
@@ -101,15 +101,15 @@ function pulseCancelCmd(driverId: number, config: PulseCancelDriverConfig): DlCo
 
 function dl(values: Partial<DlCommand>): DlCommand {
   return {
-    driverId: values.driverId ?? "0",
+    driverId: values.driverId ?? "00",
     trigger: values.trigger ?? trigger({}),
-    switchId: values.switchId ?? "0",
-    mode: values.mode ?? "0",
-    param1: values.param1 ?? "0",
-    param2: values.param2 ?? "0",
-    param3: values.param3 ?? "0",
-    param4: values.param4 ?? "0",
-    param5: values.param5 ?? "0",
+    switchId: values.switchId ?? "00",
+    mode: values.mode ?? "00",
+    param1: values.param1 ?? "00",
+    param2: values.param2 ?? "00",
+    param3: values.param3 ?? "00",
+    param4: values.param4 ?? "00",
+    param5: values.param5 ?? "00",
   }
 }
 
@@ -135,7 +135,7 @@ export function triggerToHex(trigger: DriverTrigger): string {
     trigger.manual ? 1 : 0,
     trigger.disableSwitch ? 1 : 0
   ].reverse();
-  return parseInt(bitArray.join(''), 2).toString(16);
+  return parseInt(bitArray.join(''), 2).toString(16).padStart(2, '0');
 }
 
 

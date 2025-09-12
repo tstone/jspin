@@ -19,7 +19,7 @@ describe('configure-driver', () => {
       expect(result).toBe('91');
     });
 
-    test('should return "0" when all trigger properties are false', () => {
+    test('should return "00" when all trigger properties are false', () => {
       const trigger: DriverTrigger = {
         enabled: false,
         oneShot: false,
@@ -31,7 +31,7 @@ describe('configure-driver', () => {
 
       const result = triggerToHex(trigger);
 
-      expect(result).toBe('0');
+      expect(result).toBe('00');
     });
   });
 
