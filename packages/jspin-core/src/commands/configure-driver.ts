@@ -1,4 +1,4 @@
-import { DriverConfig, PulseCancelDriverConfig, PulseDriverConfig, PulseHoldCancelDriverConfig, PulseHoldDriverConfig } from "../hardware/driver";
+import { DelayedPulseDriverConfig, DriverConfig, LongPulseDriverConfig, PulseCancelDriverConfig, PulseDriverConfig, PulseHoldCancelDriverConfig, PulseHoldDriverConfig } from "../hardware/driver";
 import { toHex } from "./hex";
 
 // https://fastpinball.com/fast-serial-protocol/net/dl/
@@ -15,6 +15,10 @@ export function configureDriverCmd(driverId: number, config: DriverConfig) {
     cmd = pulseHoldCmd(driverId, config);
   } else if (config.mode == 'pulse+hold+cancel') {
     cmd = pulseHoldCancelCmd(driverId, config);
+  } else if (config.mode == 'delayed-pulse') {
+    cmd = delayedPulseCmd(driverId, config);
+  } else if (config.mode == 'long-pulse') {
+    cmd = longPulseCmd(driverId, config);
   }
 
   if (!cmd) {
@@ -94,6 +98,40 @@ function pulseCancelCmd(driverId: number, config: PulseCancelDriverConfig): DlCo
     param1: toHex(config.offSwitch.id),
     param2: toHex(config.initialPwmDurationMs),
     param3: toHex(config.secondaryPwmDurationTenthSeconds),
+    param4: toHex(config.secondaryPwmPower),
+    param5: toHex(config.restMs),
+  });
+}
+
+function delayedPulseCmd(driverId: number, config: DelayedPulseDriverConfig): DlCommand {
+  return dl({
+    driverId: toHex(driverId),
+    trigger: trigger({
+      enabled: true,
+      invertSwitch1: config.invertSwitch,
+    }),
+    switchId: toHex(config.switch?.id),
+    mode: "30",
+    param1: toHex(config.delayTimeTenthMs),
+    param2: toHex(config.initialPwmDurationMs),
+    param3: toHex(config.initialPwmPower),
+    param4: toHex(config.secondaryPwmDurationMs),
+    param5: toHex(config.restMs),
+  });
+}
+
+function longPulseCmd(driverId: number, config: LongPulseDriverConfig): DlCommand {
+  return dl({
+    driverId: toHex(driverId),
+    trigger: trigger({
+      enabled: true,
+      invertSwitch1: config.invertSwitch,
+    }),
+    switchId: toHex(config.switch?.id),
+    mode: "70",
+    param1: toHex(config.initialPwmDurationMs),
+    param2: toHex(config.initialPwmPower),
+    param3: toHex(config.secondaryPwmDurationMs100),
     param4: toHex(config.secondaryPwmPower),
     param5: toHex(config.restMs),
   });

@@ -66,10 +66,40 @@ export interface PulseCancelDriverConfig extends BaseDriverConfig {
   restMs?: number;
 }
 
+/** Activates the driver after a delay for a fixed duration */
+export interface DelayedPulseDriverConfig extends BaseDriverConfig {
+  mode: 'delayed-pulse';
+  /** Delay time in tenths of milliseconds (e.g. value x 10ms) */
+  delayTimeTenthMs: number;
+  initialPwmDurationMs: number;
+  /** 0-255 */
+  initialPwmPower: number;
+  secondaryPwmDurationMs?: number;
+  /** 0-255 */
+  secondaryPwmPower?: number;
+  restMs?: number;
+}
+
+/** Pulse the driver for an initial time, then switch to an extended timed pulse (up to 25 seconds) */
+export interface LongPulseDriverConfig extends BaseDriverConfig {
+  mode: 'long-pulse';
+  /** Initial PWM on-time in milliseconds */
+  initialPwmDurationMs: number;
+  /** 0-255 */
+  initialPwmPower: number;
+  /** Secondary PWM on-time in hundreds of milliseconds (e.g. value x 100ms) */
+  secondaryPwmDurationMs100: number;
+  /** 0-255 */
+  secondaryPwmPower: number;
+  restMs?: number;
+}
+
 export type DriverConfig =
   | DisabledDriverConfig
   | PulseDriverConfig
   | PulseCancelDriverConfig
   | PulseHoldDriverConfig
-  | PulseHoldCancelDriverConfig;
+  | PulseHoldCancelDriverConfig
+  | DelayedPulseDriverConfig
+  | LongPulseDriverConfig;
 // TODO: other driver configs
