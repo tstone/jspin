@@ -7,7 +7,7 @@ export function configureSwitchCmd(config: SwitchConfig): string {
 
   const mode = config.inverted ? '2' : '1';
   const id = typeof config.switchId === 'number' ? config.switchId : config.switchId?.id;
-  return `SL:${toHex(id)},${debounceClose},${debounceOpen},${mode}\r`;
+  return `SL:${toHex(id)},${mode},${debounceClose},${debounceOpen}\r`;
 }
 
 export interface SwitchConfig {

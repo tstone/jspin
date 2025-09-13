@@ -1,5 +1,5 @@
 import { triggerToHex, DriverTrigger, configureDriverCmd } from '../commands/configure-driver';
-import { PulseDriverConfig, PulseHoldDriverConfig } from '../hardware/driver';
+import { PulseDriverConfig, PulseHoldCancelDriverConfig, PulseHoldDriverConfig } from '../hardware/driver';
 import { Switch } from '../hardware/switch';
 
 describe('configure-driver', () => {
