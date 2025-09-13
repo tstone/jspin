@@ -1,5 +1,5 @@
 import { triggerToHex, DriverTrigger, configureDriverCmd } from '../commands/configure-driver';
-import { PulseDriverConfig, PulseHoldCancelDriverConfig, PulseHoldDriverConfig, DelayedPulseDriverConfig, LongPulseDriverConfig } from '../hardware/driver';
+import { PulseDriverConfig, PulseHoldCancelDriverConfig, PulseHoldDriverConfig, DelayedPulseDriverConfig, LongPulseDriverConfig, FlipperMainDirectDriverConfig, FlipperHoldDirectDriverConfig } from '../hardware/driver';
 import { Switch } from '../hardware/switch';
 
 describe('configure-driver', () => {
@@ -178,6 +178,97 @@ describe('configure-driver', () => {
         // param4: secondary power 60 -> '3c' in hex
         // param5: undefined -> '00' in hex
         expect(result).toBe('DL:02,81,01,70,19,b4,50,3c,00\r');
+      });
+    });
+
+    describe('flipper-main-direct', () => {
+      test('should generate correct command for flipper main direct mode config', () => {
+        const flipperMainConfig: FlipperMainDirectDriverConfig = {
+          mode: 'flipper-main-direct',
+          switch: new Switch(12), // flipper button
+          eosSwitch: new Switch(8), // EOS switch
+          initialPwm: 255,
+          secondaryPwm: 128,
+          maxEosTimeMs: 100,
+          nextFlipRefreshTimeMs: 50
+        };
+
+        const result = configureDriverCmd(15, flipperMainConfig);
+
+        // Expected format: DL:driverId,trigger,switchId,mode,param1,param2,param3,param4,param5\r
+        // driverId: 15 -> '0f' in hex
+        // trigger: enabled, disableSwitch=true -> '81'
+        // switchId: 12 -> '0c' in hex (flipper button)
+        // mode: '5e' (flipper main direct mode)
+        // param1: EOS switch 8 -> '08' in hex
+        // param2: initial PWM 255 -> 'ff' in hex
+        // param3: secondary PWM 128 -> '80' in hex
+        // param4: max EOS time 100ms -> '64' in hex
+        // param5: next flip refresh time 50ms -> '32' in hex
+        expect(result).toBe('DL:0f,81,0c,5e,08,ff,80,64,32\r');
+      });
+
+      test('should generate correct command for flipper main direct with inverted switch', () => {
+        const flipperMainConfig: FlipperMainDirectDriverConfig = {
+          mode: 'flipper-main-direct',
+          switch: new Switch(5),
+          invertSwitch: true,
+          eosSwitch: new Switch(3),
+          initialPwm: 200,
+          secondaryPwm: 100,
+          maxEosTimeMs: 75,
+          nextFlipRefreshTimeMs: 25
+        };
+
+        const result = configureDriverCmd(3, flipperMainConfig);
+
+        // trigger with invertSwitch1=true -> '91'
+        expect(result).toBe('DL:03,91,05,5e,03,c8,64,4b,19\r');
+      });
+    });
+
+    describe('flipper-hold-direct', () => {
+      test('should generate correct command for flipper hold direct mode config', () => {
+        const flipperHoldConfig: FlipperHoldDirectDriverConfig = {
+          mode: 'flipper-hold-direct',
+          switch: new Switch(10), // flipper button
+          driverOnTime1Ms: 40,
+          initialPwm: 180,
+          secondaryPwm: 90
+        };
+
+        const result = configureDriverCmd(7, flipperHoldConfig);
+
+        // Expected format: DL:driverId,trigger,switchId,mode,param1,param2,param3,param4,param5\r
+        // driverId: 7 -> '07' in hex
+        // trigger: enabled, disableSwitch=true -> '81'
+        // switchId: 10 -> '0a' in hex (flipper button)
+        // mode: '5d' (flipper hold direct mode)
+        // param1: driver on time 40ms -> '28' in hex
+        // param2: initial PWM 180 -> 'b4' in hex
+        // param3: secondary PWM 90 -> '5a' in hex
+        // param4: N/A -> '00' in hex
+        // param5: N/A -> '00' in hex
+        expect(result).toBe('DL:07,81,0a,5d,28,b4,5a,00,00\r');
+      });
+
+      test('should generate correct command for flipper hold direct with minimal config', () => {
+        const flipperHoldConfig: FlipperHoldDirectDriverConfig = {
+          mode: 'flipper-hold-direct',
+          switch: new Switch(2),
+          driverOnTime1Ms: 30,
+          initialPwm: 255,
+          secondaryPwm: 120
+        };
+
+        const result = configureDriverCmd(1, flipperHoldConfig);
+
+        // driverId: 1 -> '01' in hex
+        // switchId: 2 -> '02' in hex
+        // param1: driver on time 30ms -> '1e' in hex
+        // param2: initial PWM 255 -> 'ff' in hex
+        // param3: secondary PWM 120 -> '78' in hex
+        expect(result).toBe('DL:01,81,02,5d,1e,ff,78,00,00\r');
       });
     });
   });

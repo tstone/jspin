@@ -1,5 +1,6 @@
 import { SwitchConfig } from "../../commands/configure-switch";
-import { Driver, PulseCancelDriverConfig, PulseHoldCancelDriverConfig } from "../driver";
+import { Driver, FlipperHoldDirectDriverConfig, FlipperMainDirectDriverConfig, PulseCancelDriverConfig, PulseHoldCancelDriverConfig } from "../driver";
+import { Power } from "../power";
 import { Switch } from "../switch";
 import { Device } from "./device";
 
@@ -10,39 +11,23 @@ export class DualWoundFlipper extends Device {
   }
 
   public async configure() {
-    const mainDriverConfig: PulseCancelDriverConfig = {
-      mode: 'pulse+cancel',
+    const mainDriverConfig: FlipperMainDirectDriverConfig = {
+      mode: 'flipper-main-direct',
       switch: Switch.from(this.config.flipperButton),
-      offSwitch: Switch.from(this.config.eosSwitch),
-      initialPwmDurationMs: this.config.main.fullPowerMs,
-      secondaryPwmPower: this.config.main.secondaryPwmPower,
-      secondaryPwmDurationTenthSeconds: this.config.main.secondaryPwmDurationTenthSeconds,
-      restMs: this.config.main.restMs ?? 1,
+      eosSwitch: Switch.from(this.config.eosSwitch),
+      initialPwm: this.config.main.initialPwm ?? Power.percent(45.8),
+      secondaryPwm: this.config.main.secondaryPwm ?? Power.full,
+      maxEosTimeMs: this.config.main.maxEosTimeMs ?? 60,
+      nextFlipRefreshTimeMs: this.config.main.nextFlipRefreshTimeMs ?? 8,
     };
-    const holdDriverConfig: PulseHoldCancelDriverConfig = {
-      mode: 'pulse+hold+cancel',
-      switch: Switch.from(this.config.eosSwitch),
-      offSwitch: Switch.from(this.config.flipperButton),
-      invertOffSwitch: true,
-      maxInitialOnTimeMs: this.config.hold.maxInitialOnTimeMs,
-      initialPwmPower: this.config.hold.initialPwmPower,
-      secondaryPwmPower: this.config.hold.secondaryPwmPower,
-      restMs: this.config.hold.restMs,
+    const holdDriverConfig: FlipperHoldDirectDriverConfig = {
+      mode: 'flipper-hold-direct',
+      switch: Switch.from(this.config.flipperButton),
+      driverOnTime1Ms: this.config.hold.driverOnTime1Ms ?? 48,
+      initialPwm: this.config.hold.initialPwm ?? Power.full,
+      secondaryPwm: this.config.hold.secondaryPwm ?? Power.full,
     };
-    const flipperSwitchConfig: SwitchConfig = this.config.flipperButton instanceof Switch ? {
-      switchId: this.config.flipperButton.id,
-      debounceCloseMs: 2,
-      debounceOpenMs: 4,
-      inverted: false,
-    } : this.config.flipperButton;
-    const eosSwitchConfig: SwitchConfig = this.config.eosSwitch instanceof Switch ? {
-      switchId: this.config.eosSwitch.id,
-      debounceOpenMs: 8,
-      inverted: true,
-    } : this.config.eosSwitch;
 
-    await this.configureSwitch(flipperSwitchConfig);
-    await this.configureSwitch(eosSwitchConfig);
     await this.configureDriver(this.config.main.driver.id, mainDriverConfig);
     await this.configureDriver(this.config.hold.driver.id, holdDriverConfig);
   }
@@ -67,29 +52,25 @@ export class DualWoundFlipper extends Device {
 }
 
 export type DualWoundFlipperConfig = {
-  // strategy: 'eos' | 'timed',
-  // TODO: timed mode uses mode 18+50 for hold driver where delay is fullPowerMs + secondaryPwmDuration
-  // TODO: just set initial power MS to 0 and use secondaryPwmDuration for primary driver?
-
-  // repulse: boolean
-  // TODO: repulse means a timer is set and if the EOS switch is not hit in that time, the main driver is manually triggered again
-
-  // TODO: investigate switch debounce settings for flipper + EOS switches
-
   main: {
     driver: Driver,
-    fullPowerMs: number,
-    secondaryPwmPower?: number;
-    /** The duration in tenths of a second (e.g. value x 100ms) */
-    secondaryPwmDurationTenthSeconds?: number;
-    restMs?: number;
+    /** Initial PWM value (16-bit) */
+    initialPwm?: number;
+    /** Remaining PWM used after initial time expires */
+    secondaryPwm?: number;
+    /** Maximum time in milliseconds for a single movement */
+    maxEosTimeMs?: number;
+    /** Time in milliseconds for flipper switch to be released before resetting driver timers */
+    nextFlipRefreshTimeMs?: number;
   },
   hold: {
     driver: Driver,
-    maxInitialOnTimeMs: number;
-    initialPwmPower: number;
-    secondaryPwmPower?: number;
-    restMs?: number;
+    /** Time in milliseconds to run initial PWM */
+    driverOnTime1Ms?: number;
+    /** Initial hold PWM value */
+    initialPwm?: number;
+    /** Remaining PWM used after initial time expires */
+    secondaryPwm?: number;
   },
   flipperButton: SwitchConfig | Switch,
   eosSwitch: SwitchConfig | Switch,

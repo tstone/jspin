@@ -1,4 +1,4 @@
-import { DelayedPulseDriverConfig, DriverConfig, LongPulseDriverConfig, PulseCancelDriverConfig, PulseDriverConfig, PulseHoldCancelDriverConfig, PulseHoldDriverConfig } from "../hardware/driver";
+import { DelayedPulseDriverConfig, DriverConfig, FlipperHoldDirectDriverConfig, FlipperMainDirectDriverConfig, LongPulseDriverConfig, PulseCancelDriverConfig, PulseDriverConfig, PulseHoldCancelDriverConfig, PulseHoldDriverConfig } from "../hardware/driver";
 import { toHex } from "./hex";
 
 // https://fastpinball.com/fast-serial-protocol/net/dl/
@@ -19,6 +19,10 @@ export function configureDriverCmd(driverId: number, config: DriverConfig) {
     cmd = delayedPulseCmd(driverId, config);
   } else if (config.mode == 'long-pulse') {
     cmd = longPulseCmd(driverId, config);
+  } else if (config.mode == 'flipper-main-direct') {
+    cmd = flipperMainDirectCmd(driverId, config);
+  } else if (config.mode == 'flipper-hold-direct') {
+    cmd = flipperHoldDirectCmd(driverId, config);
   }
 
   if (!cmd) {
@@ -134,6 +138,34 @@ function longPulseCmd(driverId: number, config: LongPulseDriverConfig): DlComman
     param3: toHex(config.secondaryPwmDurationMs100),
     param4: toHex(config.secondaryPwmPower),
     param5: toHex(config.restMs),
+  });
+}
+
+function flipperMainDirectCmd(driverId: number, config: FlipperMainDirectDriverConfig): DlCommand {
+  return dl({
+    driverId: toHex(driverId),
+    trigger: trigger({}),
+    switchId: toHex(config.switch?.id),
+    mode: "5e",
+    param1: toHex(config.eosSwitch.id),
+    param2: toHex(config.initialPwm),
+    param3: toHex(config.secondaryPwm),
+    param4: toHex(config.maxEosTimeMs),
+    param5: toHex(config.nextFlipRefreshTimeMs),
+  });
+}
+
+function flipperHoldDirectCmd(driverId: number, config: FlipperHoldDirectDriverConfig): DlCommand {
+  return dl({
+    driverId: toHex(driverId),
+    trigger: trigger({}),
+    switchId: toHex(config.switch?.id),
+    mode: "5d",
+    param1: toHex(config.driverOnTime1Ms),
+    param2: toHex(config.initialPwm),
+    param3: toHex(config.secondaryPwm),
+    param4: "00", // N/A
+    param5: "00", // N/A
   });
 }
 

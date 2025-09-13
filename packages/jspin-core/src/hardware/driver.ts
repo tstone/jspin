@@ -94,6 +94,32 @@ export interface LongPulseDriverConfig extends BaseDriverConfig {
   restMs?: number;
 }
 
+/** Controls flipper main action with direct switch inputs and EOS detection (Mode 0x5E) */
+export interface FlipperMainDirectDriverConfig extends BaseDriverConfig {
+  mode: 'flipper-main-direct';
+  /** EOS (End of Stroke) switch */
+  eosSwitch: Switch;
+  /** Initial PWM value (16-bit) */
+  initialPwm: number;
+  /** Remaining PWM used after initial time expires */
+  secondaryPwm: number;
+  /** Maximum time in milliseconds for a single movement */
+  maxEosTimeMs: number;
+  /** Time in milliseconds for flipper switch to be released before resetting driver timers */
+  nextFlipRefreshTimeMs: number;
+}
+
+/** Controls flipper hold using direct switch inputs without debounce (Mode 0x5D) */
+export interface FlipperHoldDirectDriverConfig extends BaseDriverConfig {
+  mode: 'flipper-hold-direct';
+  /** Time in milliseconds to run initial PWM */
+  driverOnTime1Ms: number;
+  /** Initial hold PWM value */
+  initialPwm: number;
+  /** Remaining PWM used after initial time expires */
+  secondaryPwm: number;
+}
+
 export type DriverConfig =
   | DisabledDriverConfig
   | PulseDriverConfig
@@ -101,5 +127,6 @@ export type DriverConfig =
   | PulseHoldDriverConfig
   | PulseHoldCancelDriverConfig
   | DelayedPulseDriverConfig
-  | LongPulseDriverConfig;
-// TODO: other driver configs
+  | LongPulseDriverConfig
+  | FlipperMainDirectDriverConfig
+  | FlipperHoldDirectDriverConfig;
